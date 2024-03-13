@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools">
+
+
+    <data>
+
+        <variable
+            name="repo"
+            type="com.oscarliang.gitfinder.model.Repo" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/layout_repo_item_height"
+        android:layout_marginStart="@dimen/margin_10"
+        android:layout_marginTop="@dimen/margin_5"
+        android:layout_marginEnd="@dimen/margin_10"
+        android:layout_marginBottom="@dimen/margin_10"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardCornerRadius="@dimen/margin_10"
+        app:cardElevation="@dimen/margin_5">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/image_owner"
+                android:layout_width="@dimen/image_owner_width"
+                android:layout_height="@dimen/image_owner_width"
+                android:layout_margin="@dimen/margin_20"
+                android:scaleType="centerCrop"
+                app:imageUrl="@{repo.owner.avatarUrl}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/Circle"
+                tool:src="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/text_owner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_10"
+                android:text="@{repo.owner.name}"
+                android:textColor="@color/gray_500"
+                android:textSize="@dimen/text_size_15"
+                app:layout_constraintBottom_toBottomOf="@id/image_owner"
+                app:layout_constraintStart_toEndOf="@id/image_owner"
+                app:layout_constraintTop_toTopOf="@id/image_owner"
+                tool:text="Owner name" />
+
+            <TextView
+                android:id="@+id/text_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_5"
+                android:text="@{repo.name}"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintStart_toStartOf="@id/image_owner"
+                app:layout_constraintTop_toBottomOf="@id/image_owner"
+                tool:text="Repo name" />
+
+            <TextView
+                android:id="@+id/text_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_5"
+                android:layout_marginEnd="@dimen/margin_20"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="@{repo.description}"
+                android:textColor="@color/gray_500"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/image_owner"
+                app:layout_constraintTop_toBottomOf="@id/text_name"
+                tool:text="Description more description more description more description more description more description more description" />
+
+            <ImageView
+                android:id="@+id/image_star"
+                android:layout_width="@dimen/image_icon_width"
+                android:layout_height="@dimen/image_icon_width"
+                android:layout_margin="@dimen/margin_20"
+                android:src="@drawable/ic_star"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:tint="@color/yellow" />
+
+            <TextView
+                android:id="@+id/text_star"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_5"
+                android:text="@{repo.stars}"
+                android:textColor="@color/gray_500"
+                android:textSize="@dimen/text_size_15"
+                app:layout_constraintBottom_toBottomOf="@id/image_star"
+                app:layout_constraintStart_toEndOf="@id/image_star"
+                app:layout_constraintTop_toTopOf="@id/image_star"
+                tool:text="1.1k" />
+
+            <ImageView
+                android:id="@+id/image_fork"
+                android:layout_width="@dimen/image_icon_width"
+                android:layout_height="@dimen/image_icon_width"
+                android:layout_margin="@dimen/margin_20"
+                android:src="@drawable/ic_fork"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_star"
+                app:tint="@color/gray_500" />
+
+            <TextView
+                android:id="@+id/text_fork"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_5"
+                android:text="@{repo.forks}"
+                android:textColor="@color/gray_500"
+                android:textSize="@dimen/text_size_15"
+                app:layout_constraintBottom_toBottomOf="@id/image_fork"
+                app:layout_constraintStart_toEndOf="@id/image_fork"
+                app:layout_constraintTop_toTopOf="@id/image_fork"
+                tool:text="1.1k" />
+
+            <ImageView
+                android:id="@+id/image_language"
+                android:layout_width="@dimen/image_icon_width"
+                android:layout_height="@dimen/image_icon_width"
+                android:layout_margin="@dimen/margin_20"
+                android:src="@drawable/ic_code"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_fork"
+                app:tint="@color/gray_500" />
+
+            <TextView
+                android:id="@+id/text_language"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_5"
+                android:text="@{repo.language}"
+                android:textColor="@color/gray_500"
+                android:textSize="@dimen/text_size_15"
+                app:layout_constraintBottom_toBottomOf="@id/image_language"
+                app:layout_constraintStart_toEndOf="@id/image_language"
+                app:layout_constraintTop_toTopOf="@id/image_language"
+                tool:text="Kotlin" />
+
+            <ImageButton
+                android:id="@+id/btn_bookmark"
+                android:layout_width="@dimen/btn_bookmark_width"
+                android:layout_height="@dimen/btn_bookmark_width"
+                android:layout_margin="@dimen/margin_20"
+                android:background="@{repo.bookmark ? @drawable/ic_bookmark : @drawable/ic_bookmark_border}"
+                android:backgroundTint="@{repo.bookmark ? @color/blue : @color/gray_500}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tool:background="@drawable/ic_bookmark_border"
+                tool:backgroundTint="@color/gray_500" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

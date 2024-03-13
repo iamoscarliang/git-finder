@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GitFinder</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_bookmarks">Bookmarks</string>
 </resources>

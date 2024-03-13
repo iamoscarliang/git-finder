@@ -1,0 +1,56 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.oscarliang.gitfinder.model.Repo" />
+
+        <import type="java.util.List" />
+
+        <import type="com.oscarliang.gitfinder.util.Resource" />
+
+        <import type="com.oscarliang.gitfinder.util.State" />
+
+        <variable
+            name="listener"
+            type="com.oscarliang.gitfinder.ui.common.RetryListener" />
+
+        <variable
+            name="resource"
+            type="Resource&lt;List&lt;Repo>>" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:showHide="@{resource.data.size() == 0}">
+
+        <TextView
+            android:id="@+id/text_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{resource.message ?? @string/unknown_error}"
+            android:textColor="@color/gray_500"
+            android:textSize="@dimen/text_size_15"
+            app:showHide="@{resource.state == State.ERROR}"
+            tool:text="Error" />
+
+        <Button
+            android:id="@+id/btn_retry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_10"
+            android:backgroundTint="@color/gray_500"
+            android:onClick="@{() -> listener.retry()}"
+            android:text="@string/retry"
+            android:textAllCaps="false"
+            android:textSize="@dimen/text_size_20"
+            app:showHide="@{resource.state == State.ERROR}" />
+
+    </LinearLayout>
+
+</layout>

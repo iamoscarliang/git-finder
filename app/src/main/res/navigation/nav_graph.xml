@@ -17,4 +17,24 @@
         android:label="BookmarksFragment"
         tool:layout="@layout/fragment_bookmarks" />
 
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.oscarliang.gitfinder.ui.detail.DetailFragment"
+        android:label="DetailFragment"
+        tool:layout="@layout/fragment_detail">
+
+        <argument
+            android:name="repoUrl"
+            app:argType="string" />
+
+    </fragment>
+
+    <action
+        android:id="@+id/action_to_newsDetailFragment"
+        app:destination="@id/detailFragment"
+        app:enterAnim="@anim/slide_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/slide_out" />
+
 </navigation>

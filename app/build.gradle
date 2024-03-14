@@ -38,18 +38,19 @@ android {
     buildFeatures {
         dataBinding true
     }
+    sourceSets {
+        androidTest.java.srcDirs += "src/common-test/java"
+        test.java.srcDirs += "src/common-test/java"
+    }
 }
 
 dependencies {
+    // AndroidX
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     // Kotlinx coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
@@ -82,4 +83,20 @@ dependencies {
     // Koin
     def koin_version = "3.5.3"
     implementation "io.insert-koin:koin-android:$koin_version"
+
+    // Mock webserver test
+    implementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+
+    // Unit test
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+
+    // Espresso test
+    def espresso_version = "3.5.1"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+
+    // Architecture components test
+    def androidx_arch_test_version = "2.2.0"
+    testImplementation "androidx.arch.core:core-testing:$androidx_arch_test_version"
+    androidTestImplementation "androidx.arch.core:core-testing:$androidx_arch_test_version"
 }

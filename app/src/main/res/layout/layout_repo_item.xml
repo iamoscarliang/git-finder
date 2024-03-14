@@ -60,7 +60,7 @@
                 android:layout_marginTop="@dimen/margin_5"
                 android:text="@{repo.name}"
                 android:textColor="@color/black"
-                android:textSize="@dimen/text_size_20"
+                android:textSize="@dimen/text_size_18"
                 app:layout_constraintStart_toStartOf="@id/image_owner"
                 app:layout_constraintTop_toBottomOf="@id/image_owner"
                 tool:text="Repo name" />
@@ -74,8 +74,8 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@{repo.description}"
-                android:textColor="@color/gray_500"
-                android:textSize="@dimen/text_size_20"
+                android:textColor="@color/gray_700"
+                android:textSize="@dimen/text_size_18"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/image_owner"
                 app:layout_constraintTop_toBottomOf="@id/text_name"
@@ -96,9 +96,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_5"
-                app:formatText="@{repo.stars}"
                 android:textColor="@color/gray_500"
                 android:textSize="@dimen/text_size_15"
+                app:formatText="@{repo.stars}"
                 app:layout_constraintBottom_toBottomOf="@id/image_star"
                 app:layout_constraintStart_toEndOf="@id/image_star"
                 app:layout_constraintTop_toTopOf="@id/image_star"
@@ -119,9 +119,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_5"
-                app:formatText="@{repo.forks}"
                 android:textColor="@color/gray_500"
                 android:textSize="@dimen/text_size_15"
+                app:formatText="@{repo.forks}"
                 app:layout_constraintBottom_toBottomOf="@id/image_fork"
                 app:layout_constraintStart_toEndOf="@id/image_fork"
                 app:layout_constraintTop_toTopOf="@id/image_fork"
@@ -135,6 +135,7 @@
                 android:src="@drawable/ic_code"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/text_fork"
+                app:showHide="@{repo.language != null}"
                 app:tint="@color/gray_500" />
 
             <TextView
@@ -154,13 +155,14 @@
                 android:id="@+id/btn_bookmark"
                 android:layout_width="@dimen/btn_bookmark_width"
                 android:layout_height="@dimen/btn_bookmark_width"
-                android:layout_margin="@dimen/margin_20"
+                android:layout_marginEnd="@dimen/margin_20"
                 android:background="@{repo.bookmark ? @drawable/ic_bookmark : @drawable/ic_bookmark_border}"
-                android:backgroundTint="@{repo.bookmark ? @color/blue : @color/gray_500}"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:backgroundTint="@{repo.bookmark ? @color/blue : @color/gray_700}"
+                app:layout_constraintBottom_toBottomOf="@id/image_star"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/image_star"
                 tool:background="@drawable/ic_bookmark_border"
-                tool:backgroundTint="@color/gray_500" />
+                tool:backgroundTint="@color/gray_700" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -23,6 +23,12 @@ abstract class RepoDao {
     @Query("SELECT * FROM repo_search_results WHERE `query` = :query")
     abstract fun search(query: String): LiveData<RepoSearchResult?>
 
+    @Query("SELECT * FROM repo_search_results WHERE `query` = :query")
+    abstract fun getSearchResult(query: String): RepoSearchResult?
+
+    @Query("DELETE FROM repo_search_results WHERE `query` = :query")
+    abstract fun deleteSearchResult(query: String)
+
     fun getOrdered(repoIds: List<Int>): LiveData<List<Repo>> {
         val order = SparseIntArray()
         repoIds.withIndex().forEach {
@@ -35,15 +41,6 @@ abstract class RepoDao {
 
     @Query("SELECT * FROM repos WHERE id in (:repoIds)")
     protected abstract fun getReposById(repoIds: List<Int>): LiveData<List<Repo>>
-
-    @Query("SELECT * FROM repos WHERE id = :repoId")
-    abstract fun getRepoById(repoId: Int): LiveData<Repo>
-
-    @Query("DELETE FROM repo_search_results WHERE `query` = :query")
-    abstract fun deleteAllRepoSearchResults(query: String)
-
-    @Query("SELECT * FROM repo_search_results WHERE `query` = :query")
-    abstract fun findSearchResult(query: String): RepoSearchResult?
 
     @Query("SELECT * FROM repos WHERE bookmark = 1")
     abstract fun getBookmarks(): LiveData<List<Repo>>

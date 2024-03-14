@@ -40,7 +40,7 @@ class RepoRepository(
                     repoIds = repoIds
                 )
                 db.runInTransaction {
-                    repoDao.deleteAllRepoSearchResults(query)
+                    repoDao.deleteSearchResult(query)
                     repoDao.insertRepos(item.items)
                     repoDao.insertRepoSearchResults(repoSearchResult)
                 }

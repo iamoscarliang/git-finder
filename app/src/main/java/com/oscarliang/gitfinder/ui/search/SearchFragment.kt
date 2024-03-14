@@ -69,8 +69,10 @@ class SearchFragment : Fragment() {
         }
         binding.repoList.apply {
             adapter = rvAdapter
-            layoutManager = GridLayoutManager(this@SearchFragment.context,
-                resources.getInteger(R.integer.columns_count))
+            layoutManager = GridLayoutManager(
+                this@SearchFragment.context,
+                resources.getInteger(R.integer.columns_count)
+            )
             itemAnimator?.changeDuration = 0
         }
         this.adapter = rvAdapter
@@ -125,7 +127,11 @@ class SearchFragment : Fragment() {
     private fun doSearch(v: View) {
         dismissKeyboard(v.windowToken)
         val query = binding.editSearch.text.toString()
-        viewModel.setQuery(query, 10)
+        if (query.isBlank()) {
+            Snackbar.make(binding.root, getString(R.string.empty_search), Snackbar.LENGTH_LONG).show()
+        } else {
+            viewModel.setQuery(query, 10)
+        }
     }
 
     private fun dismissKeyboard(windowToken: IBinder) {

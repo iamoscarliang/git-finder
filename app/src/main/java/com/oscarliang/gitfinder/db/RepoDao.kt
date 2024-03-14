@@ -7,6 +7,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.oscarliang.gitfinder.model.Repo
 import com.oscarliang.gitfinder.model.RepoSearchResult
 
@@ -17,7 +18,7 @@ abstract class RepoDao {
     abstract fun insertRepos(repositories: List<Repo>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(result: RepoSearchResult)
+    abstract fun insertRepoSearchResults(result: RepoSearchResult)
 
     @Query("SELECT * FROM repo_search_results WHERE `query` = :query")
     abstract fun search(query: String): LiveData<RepoSearchResult?>
@@ -40,5 +41,14 @@ abstract class RepoDao {
 
     @Query("DELETE FROM repo_search_results WHERE `query` = :query")
     abstract fun deleteAllRepoSearchResults(query: String)
+
+    @Query("SELECT * FROM repo_search_results WHERE `query` = :query")
+    abstract fun findSearchResult(query: String): RepoSearchResult?
+
+    @Query("SELECT * FROM repos WHERE bookmark = 1")
+    abstract fun getBookmarks(): LiveData<List<Repo>>
+
+    @Update
+    abstract suspend fun updateRepo(repo: Repo)
 
 }

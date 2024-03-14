@@ -14,6 +14,7 @@ import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.oscarliang.gitfinder.R
 import com.oscarliang.gitfinder.binding.FragmentDataBindingComponent
@@ -68,6 +69,8 @@ class SearchFragment : Fragment() {
         }
         binding.repoList.apply {
             adapter = rvAdapter
+            layoutManager = GridLayoutManager(this@SearchFragment.context,
+                resources.getInteger(R.integer.columns_count))
             itemAnimator?.changeDuration = 0
         }
         this.adapter = rvAdapter

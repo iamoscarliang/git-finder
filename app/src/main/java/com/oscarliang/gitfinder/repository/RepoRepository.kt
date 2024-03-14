@@ -25,7 +25,7 @@ class RepoRepository(
     private val githubService: GithubService
 ) {
 
-    private val newsRateLimit = RateLimiter<String>(10, TimeUnit.MINUTES)
+    private val repoRateLimit = RateLimiter<String>(10, TimeUnit.MINUTES)
 
     fun search(
         query: String,
@@ -47,7 +47,7 @@ class RepoRepository(
             }
 
             override fun shouldFetch(data: List<Repo>?): Boolean {
-                return data == null || newsRateLimit.shouldFetch(query)
+                return data == null || repoRateLimit.shouldFetch(query)
             }
 
             override fun loadFromDb(): LiveData<List<Repo>> {
@@ -87,7 +87,7 @@ class RepoRepository(
         return repoDao.getBookmarks()
     }
 
-    fun getNewsById(id: Int): LiveData<Repo> {
+    fun getRepoById(id: Int): LiveData<Repo> {
         return repoDao.getRepoById(id)
     }
 

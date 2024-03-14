@@ -22,7 +22,7 @@ data class Repo(
     @field:SerializedName("forks_count")
     val forks: Int,
     @field:SerializedName("language")
-    val language: String,
+    val language: String?,
     @field:SerializedName("html_url")
     val url: String,
     val bookmark: Boolean = false

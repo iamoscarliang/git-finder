@@ -1,10 +1,13 @@
 package com.oscarliang.gitfinder.di
 
-import android.view.View
 import androidx.room.Room
 import com.oscarliang.gitfinder.api.GithubService
 import com.oscarliang.gitfinder.db.GithubDatabase
+import com.oscarliang.gitfinder.repository.RepoRepository
+import com.oscarliang.gitfinder.ui.search.SearchViewModel
 import com.oscarliang.gitfinder.util.LiveDataCallAdapterFactory
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,13 +24,22 @@ val appModule = module {
     }
 
     single {
-        Room.databaseBuilder(get(), GithubDatabase::class.java, "repo.db")
+        Room.databaseBuilder(androidContext(), GithubDatabase::class.java, "repo.db")
             .fallbackToDestructiveMigration()
             .build()
     }
 
-    single { (db: GithubDatabase) ->
+    single {
+        val db = get<GithubDatabase>()
         db.repoDao()
+    }
+
+    single {
+        RepoRepository(get(), get(), get())
+    }
+
+    viewModel {
+        SearchViewModel(get())
     }
 
 }

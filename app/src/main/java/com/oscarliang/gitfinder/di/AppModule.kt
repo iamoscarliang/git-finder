@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.oscarliang.gitfinder.api.GithubService
 import com.oscarliang.gitfinder.db.GithubDatabase
 import com.oscarliang.gitfinder.repository.RepoRepository
+import com.oscarliang.gitfinder.ui.bookmarks.BookmarksViewModel
 import com.oscarliang.gitfinder.ui.search.SearchViewModel
 import com.oscarliang.gitfinder.util.LiveDataCallAdapterFactory
 import org.koin.android.ext.koin.androidContext
@@ -40,6 +41,10 @@ val appModule = module {
 
     viewModel {
         SearchViewModel(get())
+    }
+
+    viewModel {
+        BookmarksViewModel(get())
     }
 
 }

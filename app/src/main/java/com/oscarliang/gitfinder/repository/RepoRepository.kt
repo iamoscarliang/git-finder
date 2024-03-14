@@ -87,11 +87,7 @@ class RepoRepository(
         return repoDao.getBookmarks()
     }
 
-    fun getRepoById(id: Int): LiveData<Repo> {
-        return repoDao.getRepoById(id)
-    }
-
-    suspend fun updateNews(repo: Repo) {
+    suspend fun updateRepo(repo: Repo) {
         repoDao.updateRepo(repo)
     }
 

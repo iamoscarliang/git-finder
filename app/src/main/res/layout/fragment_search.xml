@@ -86,7 +86,7 @@
                     android:layout_height="match_parent">
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/news_list"
+                        android:id="@+id/repo_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"

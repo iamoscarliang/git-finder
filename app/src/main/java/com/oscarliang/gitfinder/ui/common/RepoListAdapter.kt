@@ -9,7 +9,7 @@ import com.oscarliang.gitfinder.R
 import com.oscarliang.gitfinder.databinding.LayoutRepoItemBinding
 import com.oscarliang.gitfinder.model.Repo
 
-class NewsListAdapter(
+class RepoListAdapter(
     private val dataBindingComponent: DataBindingComponent,
     private val itemClickListener: ((Repo) -> Unit)?,
     private val bookmarkClickListener: ((Repo) -> Unit)?

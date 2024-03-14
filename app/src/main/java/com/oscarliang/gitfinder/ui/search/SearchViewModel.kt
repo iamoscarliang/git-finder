@@ -64,7 +64,7 @@ class SearchViewModel(
         val current = news.bookmark
         val updated = news.copy(bookmark = !current)
         viewModelScope.launch {
-            repository.updateNews(updated)
+            repository.updateRepo(updated)
         }
     }
 

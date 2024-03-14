@@ -18,7 +18,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.oscarliang.gitfinder.R
 import com.oscarliang.gitfinder.binding.FragmentDataBindingComponent
 import com.oscarliang.gitfinder.databinding.FragmentSearchBinding
-import com.oscarliang.gitfinder.ui.common.NewsListAdapter
+import com.oscarliang.gitfinder.ui.common.RepoListAdapter
 import com.oscarliang.gitfinder.ui.common.RetryListener
 import com.oscarliang.gitfinder.util.autoCleared
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -28,7 +28,7 @@ class SearchFragment : Fragment() {
     var binding by autoCleared<FragmentSearchBinding>()
     var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent()
     private val viewModel by viewModel<SearchViewModel>()
-    private var adapter by autoCleared<NewsListAdapter>()
+    private var adapter by autoCleared<RepoListAdapter>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,15 +47,15 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.searchResults = viewModel.searchResults
         binding.lifecycleOwner = viewLifecycleOwner
-        val rvAdapter = NewsListAdapter(
+        val rvAdapter = RepoListAdapter(
             dataBindingComponent = dataBindingComponent,
             itemClickListener = {
-//                findNavController()
-//                    .navigate(
-//                        SearchFragmentDirections.actionToNewsDetailFragment(
-//                            it.url
-//                        )
-//                    )
+                findNavController()
+                    .navigate(
+                        SearchFragmentDirections.actionToNewsDetailFragment(
+                            it.url
+                        )
+                    )
             },
             bookmarkClickListener = {
                 viewModel.toggleBookmark(it)
@@ -66,7 +66,7 @@ class SearchFragment : Fragment() {
                 viewModel.retry()
             }
         }
-        binding.newsList.apply {
+        binding.repoList.apply {
             adapter = rvAdapter
             itemAnimator?.changeDuration = 0
         }
@@ -83,8 +83,8 @@ class SearchFragment : Fragment() {
             }
         }
 
-        viewModel.searchResults.observe(viewLifecycleOwner) { news ->
-            adapter.submitList(news?.data)
+        viewModel.searchResults.observe(viewLifecycleOwner) { result ->
+            adapter.submitList(result?.data)
         }
 
         viewModel.loadMoreStatus.observe(viewLifecycleOwner) { loadingMore ->

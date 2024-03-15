@@ -39,8 +39,8 @@ android {
         dataBinding true
     }
     sourceSets {
-        androidTest.java.srcDirs += "src/common-test/java"
-        test.java.srcDirs += "src/common-test/java"
+        androidTest.java.srcDirs += "src/test-common/java"
+        test.java.srcDirs += "src/test-common/java"
     }
 }
 

@@ -12,12 +12,11 @@ import com.oscarliang.gitfinder.model.RepoSearchResult
 import com.oscarliang.gitfinder.util.AbsentLiveData
 import com.oscarliang.gitfinder.util.FetchNextSearchPageTask
 import com.oscarliang.gitfinder.util.NetworkBoundResource
-import com.oscarliang.gitfinder.util.RateLimiter
 import com.oscarliang.gitfinder.util.Resource
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 class RepoRepository(
     private val db: GithubDatabase,
@@ -25,20 +24,21 @@ class RepoRepository(
     private val githubService: GithubService
 ) {
 
-    private val repoRateLimit = RateLimiter<String>(10, TimeUnit.MINUTES)
-
     fun search(
         query: String,
         number: Int,
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
+        ioDispatcher: CoroutineDispatcher,
+        mainDispatcher: CoroutineDispatcher
     ): LiveData<Resource<List<Repo>>> {
-        return object : NetworkBoundResource<List<Repo>, RepoSearchResponse>(coroutineScope) {
+        return object : NetworkBoundResource<List<Repo>, RepoSearchResponse>(
+            coroutineScope = coroutineScope,
+            ioDispatcher = ioDispatcher,
+            mainDispatcher = mainDispatcher
+        ) {
             override fun saveCallResult(item: RepoSearchResponse) {
                 val repoIds = item.items.map { it.id }
-                val repoSearchResult = RepoSearchResult(
-                    query = query,
-                    repoIds = repoIds
-                )
+                val repoSearchResult = RepoSearchResult(query, repoIds)
                 db.runInTransaction {
                     repoDao.deleteSearchResult(query)
                     repoDao.insertRepos(item.items)
@@ -47,7 +47,7 @@ class RepoRepository(
             }
 
             override fun shouldFetch(data: List<Repo>?): Boolean {
-                return data == null || repoRateLimit.shouldFetch(query)
+                return data == null
             }
 
             override fun loadFromDb(): LiveData<List<Repo>> {
@@ -69,7 +69,8 @@ class RepoRepository(
     fun searchNextPage(
         query: String,
         number: Int,
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
+        ioDispatcher: CoroutineDispatcher,
     ): LiveData<Resource<Boolean>?> {
         val fetchNextSearchPageTask = FetchNextSearchPageTask(
             query = query,
@@ -77,7 +78,7 @@ class RepoRepository(
             githubService = githubService,
             db = db
         )
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(ioDispatcher) {
             fetchNextSearchPageTask.run()
         }
         return fetchNextSearchPageTask.liveData

@@ -8,14 +8,16 @@ import com.oscarliang.gitfinder.api.ApiEmptyResponse
 import com.oscarliang.gitfinder.api.ApiErrorResponse
 import com.oscarliang.gitfinder.api.ApiResponse
 import com.oscarliang.gitfinder.api.ApiSuccessResponse
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 abstract class NetworkBoundResource<ResultType, RequestType>
 @MainThread constructor(
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val mainDispatcher: CoroutineDispatcher
 ) {
 
     private val result = MediatorLiveData<Resource<ResultType>>()
@@ -47,9 +49,9 @@ abstract class NetworkBoundResource<ResultType, RequestType>
             result.removeSource(dbSource)
             when (response) {
                 is ApiSuccessResponse -> {
-                    coroutineScope.launch(Dispatchers.IO) {
+                    coroutineScope.launch(ioDispatcher) {
                         saveCallResult(processResponse(response))
-                        withContext(Dispatchers.Main) {
+                        withContext(mainDispatcher) {
                             // We specially request a new live data,
                             // otherwise we will get immediately last cached value,
                             // which may not be updated with latest results received from network.
@@ -61,7 +63,7 @@ abstract class NetworkBoundResource<ResultType, RequestType>
                 }
 
                 is ApiEmptyResponse -> {
-                    coroutineScope.launch(Dispatchers.Main) {
+                    coroutineScope.launch(mainDispatcher) {
                         // Reload from disk whatever we had
                         result.addSource(loadFromDb()) { newData ->
                             setValue(Resource.success(newData))

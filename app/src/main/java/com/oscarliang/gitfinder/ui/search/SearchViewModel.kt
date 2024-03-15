@@ -11,7 +11,9 @@ import com.oscarliang.gitfinder.repository.RepoRepository
 import com.oscarliang.gitfinder.util.AbsentLiveData
 import com.oscarliang.gitfinder.util.Resource
 import com.oscarliang.gitfinder.util.State
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -19,7 +21,7 @@ class SearchViewModel(
 ) : ViewModel() {
 
     private val _query: MutableLiveData<Query> = MutableLiveData()
-    private val nextPageHandler = NextPageHandler(repository, viewModelScope)
+    private val nextPageHandler = NextPageHandler(repository, viewModelScope, Dispatchers.IO)
 
     val query: LiveData<Query>
         get() = _query
@@ -29,7 +31,9 @@ class SearchViewModel(
             repository.search(
                 query = query,
                 number = number,
-                viewModelScope
+                coroutineScope = viewModelScope,
+                ioDispatcher = Dispatchers.IO,
+                mainDispatcher = Dispatchers.Main
             )
         }
     }
@@ -60,9 +64,9 @@ class SearchViewModel(
         }
     }
 
-    fun toggleBookmark(news: Repo) {
-        val current = news.bookmark
-        val updated = news.copy(bookmark = !current)
+    fun toggleBookmark(repo: Repo) {
+        val current = repo.bookmark
+        val updated = repo.copy(bookmark = !current)
         viewModelScope.launch {
             repository.updateRepo(updated)
         }
@@ -96,7 +100,8 @@ class SearchViewModel(
 
     class NextPageHandler(
         private val repository: RepoRepository,
-        private val coroutineScope: CoroutineScope
+        private val coroutineScope: CoroutineScope,
+        private val ioDispatcher: CoroutineDispatcher
     ) : Observer<Resource<Boolean>?> {
 
         val loadMoreState = MutableLiveData<LoadMoreState>()
@@ -119,7 +124,8 @@ class SearchViewModel(
             }
             unregister()
             this.query = query
-            nextPageLiveData = repository.searchNextPage(query, number, coroutineScope)
+            nextPageLiveData =
+                repository.searchNextPage(query, number, coroutineScope, ioDispatcher)
             loadMoreState.value = LoadMoreState(
                 isRunning = true,
                 errorMessage = null

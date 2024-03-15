@@ -88,6 +88,7 @@ dependencies {
     def coroutines_version = "1.7.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
 
     // Unit test
     testImplementation 'junit:junit:4.13.2'

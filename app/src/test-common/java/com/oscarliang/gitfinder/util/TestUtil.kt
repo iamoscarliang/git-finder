@@ -14,6 +14,7 @@ object TestUtil {
     ): List<Repo> {
         return (0 until count).map {
             createRepo(
+                id = it,
                 name = name + it,
                 description = description + it,
                 owner = owner + it

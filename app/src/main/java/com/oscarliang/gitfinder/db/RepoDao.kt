@@ -42,6 +42,9 @@ abstract class RepoDao {
     @Query("SELECT * FROM repos WHERE id in (:repoIds)")
     protected abstract fun getReposById(repoIds: List<Int>): LiveData<List<Repo>>
 
+    @Query("SELECT * FROM repos WHERE id = :repoId")
+    abstract fun getRepoById(repoId: Int): LiveData<Repo>
+
     @Query("SELECT * FROM repos WHERE bookmark = 1")
     abstract fun getBookmarks(): LiveData<List<Repo>>
 

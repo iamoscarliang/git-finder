@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.GitFinder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/blue</item>
     </style>
@@ -11,6 +9,7 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8%</item>
     </style>
+
     <style name="Circle">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>

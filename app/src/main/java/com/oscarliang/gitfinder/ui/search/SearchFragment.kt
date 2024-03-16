@@ -53,7 +53,7 @@ class SearchFragment : Fragment() {
             itemClickListener = {
                 findNavController()
                     .navigate(
-                        SearchFragmentDirections.actionToNewsDetailFragment(
+                        SearchFragmentDirections.actionToDetailFragment(
                             it.url
                         )
                     )

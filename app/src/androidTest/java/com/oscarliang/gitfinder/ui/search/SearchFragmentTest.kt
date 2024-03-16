@@ -30,9 +30,7 @@ import com.oscarliang.gitfinder.util.RecyclerViewMatcher
 import com.oscarliang.gitfinder.util.Resource
 import com.oscarliang.gitfinder.util.TestUtil
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before
@@ -143,7 +141,7 @@ class SearchFragmentTest {
         val repo = TestUtil.createRepo("foo", "bar", "owner").copy(url = "abc")
         searchResults.postValue(Resource.success(listOf(repo)))
         onView(withText("foo")).perform(click())
-        verify { navController.navigate(SearchFragmentDirections.actionToNewsDetailFragment("abc")) }
+        verify { navController.navigate(SearchFragmentDirections.actionToDetailFragment("abc")) }
     }
 
     @Test

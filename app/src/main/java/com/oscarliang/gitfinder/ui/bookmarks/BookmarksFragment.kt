@@ -45,7 +45,7 @@ class BookmarksFragment : Fragment() {
             itemClickListener = {
                 findNavController()
                     .navigate(
-                        BookmarksFragmentDirections.actionToNewsDetailFragment(
+                        BookmarksFragmentDirections.actionToDetailFragment(
                             it.url
                         )
                     )

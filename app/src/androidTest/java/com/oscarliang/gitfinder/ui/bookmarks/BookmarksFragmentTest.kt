@@ -82,7 +82,7 @@ class BookmarksFragmentTest {
         val repo = TestUtil.createRepo("foo", "bar", "owner").copy(url = "abc")
         repoLiveData.postValue(listOf(repo))
         onView(withText("foo")).perform(click())
-        verify { navController.navigate(BookmarksFragmentDirections.actionToNewsDetailFragment("abc")) }
+        verify { navController.navigate(BookmarksFragmentDirections.actionToDetailFragment("abc")) }
     }
 
     @Test

@@ -30,7 +30,7 @@
     </fragment>
 
     <action
-        android:id="@+id/action_to_newsDetailFragment"
+        android:id="@+id/action_to_detailFragment"
         app:destination="@id/detailFragment"
         app:enterAnim="@anim/slide_in"
         app:exitAnim="@anim/fade_out"

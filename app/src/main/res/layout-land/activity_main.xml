@@ -7,13 +7,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray_200">
+        android:background="@color/app_bg">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/blue"
+            android:background="@color/toolbar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/nav_view"
             app:layout_constraintTop_toTopOf="parent">
@@ -44,6 +44,7 @@
             android:id="@+id/nav_view"
             android:layout_width="@dimen/layout_nav_view_width"
             android:layout_height="match_parent"
+            android:background="@color/app_fg"
             app:itemIconTint="@drawable/nav_selector"
             app:itemTextColor="@drawable/nav_selector"
             app:layout_constraintBottom_toBottomOf="parent"

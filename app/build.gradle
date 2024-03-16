@@ -16,7 +16,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.oscarliang.gitfinder.util.GithubTestRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -34,6 +34,13 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
+    }
+    testOptions {
+        packagingOptions {
+            jniLibs {
+                useLegacyPackaging = true
+            }
+        }
     }
     buildFeatures {
         dataBinding true
@@ -95,7 +102,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
 
     // Mockk
-    testImplementation "io.mockk:mockk:1.12.4"
+    def mockk_version = "1.12.3"
+    testImplementation "io.mockk:mockk:$mockk_version"
+    androidTestImplementation "io.mockk:mockk-android:$mockk_version"
 
     // Espresso test
     def espresso_version = "3.5.1"
@@ -105,4 +114,8 @@ dependencies {
     def androidx_arch_test_version = "2.2.0"
     testImplementation "androidx.arch.core:core-testing:$androidx_arch_test_version"
     androidTestImplementation "androidx.arch.core:core-testing:$androidx_arch_test_version"
+
+    // Fragment test
+    def fragment_version = "1.6.2"
+    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
 }

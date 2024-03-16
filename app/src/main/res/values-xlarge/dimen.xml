@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="layout_repo_item_height">400dp</dimen>
+    <dimen name="layout_nav_view_width">320dp</dimen>
+    <dimen name="image_owner_width">40dp</dimen>
+    <dimen name="image_icon_width">40dp</dimen>
+    <dimen name="btn_bookmark_width">60dp</dimen>
+
+    <dimen name="text_size_12">24sp</dimen>
+    <dimen name="text_size_15">30sp</dimen>
+    <dimen name="text_size_18">36sp</dimen>
+    <dimen name="text_size_20">40sp</dimen>
+
+    <dimen name="margin_5">10dp</dimen>
+    <dimen name="margin_10">20dp</dimen>
+    <dimen name="margin_20">40dp</dimen>
+    <dimen name="margin_30">60dp</dimen>
+</resources>

@@ -12,7 +12,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.pressKey
+import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
@@ -128,20 +130,37 @@ class SearchFragmentTest {
     }
 
     @Test
+    fun refresh() {
+        searchResults.postValue(Resource.error("Failed to load", null))
+        onView(withId(R.id.shimmer_layout)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.swipe_refresh_layout)).perform(swipeDown())
+        verify { viewModel.retry() }
+
+        searchResults.postValue(Resource.loading(null))
+        onView(withId(R.id.shimmer_layout)).check(matches(isDisplayed()))
+
+        val repo = TestUtil.createRepo("foo", "bar", "owner")
+        searchResults.postValue(Resource.success(listOf(repo)))
+        onView(withId(R.id.shimmer_layout)).check(matches(not(isDisplayed())))
+        onView(listMatcher().atPosition(0)).check(matches(hasDescendant(withText("foo"))))
+    }
+
+    @Test
+    fun nullResult() {
+        val repo = TestUtil.createRepo("foo", "bar", "owner")
+        searchResults.postValue(Resource.success(listOf(repo)))
+        onView(listMatcher().atPosition(0)).check(matches(hasDescendant(withText("foo"))))
+        searchResults.postValue(null)
+        onView(listMatcher().atPosition(0)).check(doesNotExist())
+    }
+
+    @Test
     fun loadMore() {
         val repos = TestUtil.createRepos(10, "foo", "bar", "owner")
         searchResults.postValue(Resource.success(repos))
         onView(listMatcher().atPosition(9)).perform(nestedScrollTo())
         onView(listMatcher().atPosition(9)).check(matches(isDisplayed()))
         verify { viewModel.loadNextPage() }
-    }
-
-    @Test
-    fun navigateToDetail() {
-        val repo = TestUtil.createRepo("foo", "bar", "owner").copy(url = "abc")
-        searchResults.postValue(Resource.success(listOf(repo)))
-        onView(withText("foo")).perform(click())
-        verify { navController.navigate(SearchFragmentDirections.actionToDetailFragment("abc")) }
     }
 
     @Test
@@ -156,6 +175,14 @@ class SearchFragmentTest {
     fun loadMoreProgressError() {
         loadMoreStatus.postValue(SearchViewModel.LoadMoreState(true, "Failed to load"))
         onView(withText("Failed to load")).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    }
+
+    @Test
+    fun navigateToDetail() {
+        val repo = TestUtil.createRepo("foo", "bar", "owner").copy(url = "abc")
+        searchResults.postValue(Resource.success(listOf(repo)))
+        onView(withText("foo")).perform(click())
+        verify { navController.navigate(SearchFragmentDirections.actionToDetailFragment("abc")) }
     }
 
     @Test

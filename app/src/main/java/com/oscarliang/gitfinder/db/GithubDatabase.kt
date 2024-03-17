@@ -7,7 +7,8 @@ import com.oscarliang.gitfinder.model.RepoSearchResult
 
 @Database(
     entities = [Repo::class, RepoSearchResult::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class GithubDatabase : RoomDatabase() {
 

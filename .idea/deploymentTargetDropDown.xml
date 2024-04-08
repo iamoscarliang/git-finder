@@ -5,13 +5,13 @@
       <entry key="BookmarksFragmentTest">
         <State />
       </entry>
-      <entry key="RepoDaoTest">
-        <State />
-      </entry>
       <entry key="SearchFragmentTest">
         <State />
       </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="testSearchNextPage()">
         <State />
       </entry>
     </value>

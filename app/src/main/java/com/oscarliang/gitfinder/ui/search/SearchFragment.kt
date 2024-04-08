@@ -10,14 +10,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.NestedScrollView
-import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.oscarliang.gitfinder.R
-import com.oscarliang.gitfinder.binding.FragmentDataBindingComponent
 import com.oscarliang.gitfinder.databinding.FragmentSearchBinding
 import com.oscarliang.gitfinder.ui.common.RepoListAdapter
 import com.oscarliang.gitfinder.ui.common.RetryListener
@@ -27,14 +25,13 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class SearchFragment : Fragment() {
 
     var binding by autoCleared<FragmentSearchBinding>()
-    var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent()
     private val viewModel by viewModel<SearchViewModel>()
     private var adapter by autoCleared<RepoListAdapter>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val dataBinding = DataBindingUtil.inflate<FragmentSearchBinding>(
             inflater,
             R.layout.fragment_search,
@@ -49,7 +46,6 @@ class SearchFragment : Fragment() {
         binding.searchResults = viewModel.searchResults
         binding.lifecycleOwner = viewLifecycleOwner
         val rvAdapter = RepoListAdapter(
-            dataBindingComponent = dataBindingComponent,
             itemClickListener = {
                 findNavController()
                     .navigate(
@@ -81,9 +77,9 @@ class SearchFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        binding.nestedScrollView.setOnScrollChangeListener { v: NestedScrollView, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
+        binding.nestedScrollView.setOnScrollChangeListener { view: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
             // Check is scroll to bottom
-            if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
+            if (scrollY == view.getChildAt(0).measuredHeight - view.measuredHeight) {
                 viewModel.loadNextPage()
             }
         }

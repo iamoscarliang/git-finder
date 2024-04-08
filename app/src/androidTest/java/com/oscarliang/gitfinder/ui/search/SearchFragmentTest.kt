@@ -3,7 +3,6 @@ package com.oscarliang.gitfinder.ui.search
 import android.content.Context
 import android.view.KeyEvent
 import androidx.annotation.StringRes
-import androidx.databinding.DataBindingComponent
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
@@ -24,7 +23,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.oscarliang.gitfinder.R
-import com.oscarliang.gitfinder.binding.FragmentBindingAdapters
 import com.oscarliang.gitfinder.model.Repo
 import com.oscarliang.gitfinder.util.DataBindingIdlingResourceRule
 import com.oscarliang.gitfinder.util.EspressoTestUtil.nestedScrollTo
@@ -52,7 +50,6 @@ class SearchFragmentTest {
 
     private lateinit var navController: NavController
     private lateinit var viewModel: SearchViewModel
-    private lateinit var bindingAdapter: FragmentBindingAdapters
     private val searchResults = MutableLiveData<Resource<List<Repo>>>()
     private val loadMoreState = MutableLiveData<SearchViewModel.LoadMoreState>()
 
@@ -60,7 +57,6 @@ class SearchFragmentTest {
     fun init() {
         navController = mockk<NavController>(relaxed = true)
         viewModel = mockk<SearchViewModel>(relaxed = true)
-        bindingAdapter = mockk<FragmentBindingAdapters>(relaxed = true)
         every { viewModel.searchResults } returns searchResults
         every { viewModel.loadMoreState } returns loadMoreState
         val scenario = launchFragmentInContainer(themeResId = R.style.Theme_GitFinder) {
@@ -71,13 +67,7 @@ class SearchFragmentTest {
                     viewModel
                 }
             })
-            SearchFragment().apply {
-                dataBindingComponent = object : DataBindingComponent {
-                    override fun getFragmentBindingAdapters(): FragmentBindingAdapters {
-                        return bindingAdapter
-                    }
-                }
-            }
+            SearchFragment()
         }
         dataBindingIdlingResourceRule.monitorFragment(scenario)
         scenario.onFragment { fragment ->

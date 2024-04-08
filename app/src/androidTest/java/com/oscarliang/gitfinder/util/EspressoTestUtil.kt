@@ -10,29 +10,13 @@ import androidx.core.widget.NestedScrollView
 import androidx.test.espresso.PerformException
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
-import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.util.HumanReadables
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 
 object EspressoTestUtil {
-
-    fun withCollapsibleToolbarTitle(textMatcher: Matcher<String?>): Matcher<Any?>? {
-        return object :
-            BoundedMatcher<Any?, CollapsingToolbarLayout>(CollapsingToolbarLayout::class.java) {
-            override fun matchesSafely(toolbarLayout: CollapsingToolbarLayout): Boolean {
-                return textMatcher.matches(toolbarLayout.title)
-            }
-
-            override fun describeTo(description: Description) {
-                description.appendText("with toolbar title: ")
-                textMatcher.describeTo(description)
-            }
-        }
-    }
 
     fun nestedScrollTo(): ViewAction? {
         return object : ViewAction {

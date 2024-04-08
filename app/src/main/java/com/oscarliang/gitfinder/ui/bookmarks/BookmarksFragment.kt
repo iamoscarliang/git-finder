@@ -4,13 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.oscarliang.gitfinder.R
-import com.oscarliang.gitfinder.binding.FragmentDataBindingComponent
 import com.oscarliang.gitfinder.databinding.FragmentBookmarksBinding
 import com.oscarliang.gitfinder.ui.common.RepoListAdapter
 import com.oscarliang.gitfinder.util.autoCleared
@@ -19,14 +17,13 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class BookmarksFragment : Fragment() {
 
     var binding by autoCleared<FragmentBookmarksBinding>()
-    var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent()
     private val viewModel: BookmarksViewModel by viewModel<BookmarksViewModel>()
     private var adapter by autoCleared<RepoListAdapter>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val dataBinding = DataBindingUtil.inflate<FragmentBookmarksBinding>(
             inflater,
             R.layout.fragment_bookmarks,
@@ -41,7 +38,6 @@ class BookmarksFragment : Fragment() {
         binding.bookmarks = viewModel.bookmarks
         binding.lifecycleOwner = viewLifecycleOwner
         val rvAdapter = RepoListAdapter(
-            dataBindingComponent = dataBindingComponent,
             itemClickListener = {
                 findNavController()
                     .navigate(
@@ -56,8 +52,10 @@ class BookmarksFragment : Fragment() {
         )
         binding.repoList.apply {
             adapter = rvAdapter
-            layoutManager = GridLayoutManager(this@BookmarksFragment.context,
-                resources.getInteger(R.integer.columns_count))
+            layoutManager = GridLayoutManager(
+                this@BookmarksFragment.context,
+                resources.getInteger(R.integer.columns_count)
+            )
             itemAnimator?.changeDuration = 0
         }
         this.adapter = rvAdapter

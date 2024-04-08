@@ -2,7 +2,6 @@ package com.oscarliang.gitfinder.ui.common
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import com.oscarliang.gitfinder.R
@@ -10,7 +9,6 @@ import com.oscarliang.gitfinder.databinding.LayoutRepoItemBinding
 import com.oscarliang.gitfinder.model.Repo
 
 class RepoListAdapter(
-    private val dataBindingComponent: DataBindingComponent,
     private val itemClickListener: ((Repo) -> Unit)?,
     private val bookmarkClickListener: ((Repo) -> Unit)?
 ) : DataBoundListAdapter<Repo, LayoutRepoItemBinding>(
@@ -30,8 +28,7 @@ class RepoListAdapter(
             LayoutInflater.from(parent.context),
             R.layout.layout_repo_item,
             parent,
-            false,
-            dataBindingComponent
+            false
         )
         binding.root.setOnClickListener {
             binding.repo?.let {

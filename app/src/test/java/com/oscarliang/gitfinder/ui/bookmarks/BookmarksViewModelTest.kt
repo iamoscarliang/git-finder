@@ -5,6 +5,7 @@ import com.oscarliang.gitfinder.util.MainDispatcherRule
 import com.oscarliang.gitfinder.util.TestUtil
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -16,7 +17,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class BookmarksViewModelTest {
 
-    @get:Rule
+    @Rule
+    @JvmField
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository = mockk<RepoRepository>(relaxed = true)
@@ -27,12 +29,13 @@ class BookmarksViewModelTest {
         viewModel = BookmarksViewModel(repository)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun update() = runTest {
         val current = TestUtil.createRepo("a", "b", "c")
         val updated = current.copy(bookmark = true)
         viewModel.toggleBookmark(current)
-        advanceUntilIdle()   // Yields to perform the registrations
+        advanceUntilIdle()
         coVerify { repository.updateRepo(updated) }
     }
 

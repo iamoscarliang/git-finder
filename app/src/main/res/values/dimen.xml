@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="layout_repo_item_height">200dp</dimen>
+    <dimen name="layout_loading_state_height">70dp</dimen>
     <dimen name="layout_nav_view_width">160dp</dimen>
     <dimen name="image_owner_width">20dp</dimen>
     <dimen name="image_icon_width">20dp</dimen>

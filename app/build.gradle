@@ -99,9 +99,8 @@ dependencies {
     // Mock webserver test
     implementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
 
-    // Kotlinx coroutines
+    // Coroutines test
     def coroutines_version = "1.7.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
 
@@ -114,7 +113,7 @@ dependencies {
     testImplementation "io.mockk:mockk:$mockk_version"
     androidTestImplementation "io.mockk:mockk-android:$mockk_version"
 
-    // Espresso test
+    // Espresso
     def espresso_version = "3.5.1"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
 

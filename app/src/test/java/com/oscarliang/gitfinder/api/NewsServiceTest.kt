@@ -1,8 +1,7 @@
 package com.oscarliang.gitfinder.api
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.oscarliang.gitfinder.util.LiveDataCallAdapterFactory
-import com.oscarliang.gitfinder.util.getOrAwaitValue
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okio.buffer
@@ -35,7 +34,6 @@ class NewsServiceTest {
         service = Retrofit.Builder()
             .baseUrl(mockWebServer.url("/"))
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
             .create(GithubService::class.java)
     }
@@ -46,12 +44,12 @@ class NewsServiceTest {
     }
 
     @Test
-    fun search() {
+    fun testSearchRepos() = runTest {
         enqueueResponse("search.json")
         val response = service.searchRepos(
             "android",
             10
-        ).getOrAwaitValue() as ApiSuccessResponse
+        )
 
         val request = mockWebServer.takeRequest()
         assertEquals(
@@ -60,17 +58,17 @@ class NewsServiceTest {
         )
 
         assertNotNull(response)
-        assertEquals(response.body.items.size, 10)
+        assertEquals(response.items.size, 10)
 
-        val news1 = response.body.items.get(0)
-        assertEquals(news1.id, 82128465)
-        assertEquals(news1.owner.name, "open-android")
-        assertEquals(news1.url, "https://github.com/open-android/Android")
+        val repo1 = response.items[0]
+        assertEquals(repo1.id, 82128465)
+        assertEquals(repo1.owner.name, "open-android")
+        assertEquals(repo1.url, "https://github.com/open-android/Android")
 
-        val news2 = response.body.items.get(1)
-        assertEquals(news2.id, 12544093)
-        assertEquals(news2.owner.name, "hmkcode")
-        assertEquals(news2.url, "https://github.com/hmkcode/Android")
+        val repo2 = response.items[1]
+        assertEquals(repo2.id, 12544093)
+        assertEquals(repo2.owner.name, "hmkcode")
+        assertEquals(repo2.url, "https://github.com/hmkcode/Android")
     }
 
     private fun enqueueResponse(fileName: String, headers: Map<String, String> = emptyMap()) {

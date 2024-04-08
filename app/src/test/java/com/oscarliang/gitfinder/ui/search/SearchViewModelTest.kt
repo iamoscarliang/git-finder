@@ -3,7 +3,6 @@ package com.oscarliang.gitfinder.ui.search
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.oscarliang.gitfinder.model.Repo
 import com.oscarliang.gitfinder.repository.RepoRepository
 import com.oscarliang.gitfinder.util.MainDispatcherRule
 import com.oscarliang.gitfinder.util.Resource
@@ -14,6 +13,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -26,7 +26,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class SearchViewModelTest {
 
-    @get:Rule
+    @Rule
+    @JvmField
     val mainDispatcherRule = MainDispatcherRule()
 
     @Rule
@@ -42,86 +43,119 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun empty() {
-        val result = mockk<Observer<Resource<List<Repo>>>>()
-        viewModel.searchResults.observeForever(result)
+    fun testSearchWithoutObserver() {
+        viewModel.setQuery("foo", 10)
+        verify { repository wasNot Called }
+    }
+
+    @Test
+    fun testSearchWhenObserved() {
+        viewModel.searchResults.observeForever(mockk())
+        viewModel.setQuery("foo", 10)
+        verify { repository.search("foo", 10) }
+        clearMocks(repository)
+        viewModel.setQuery("bar", 10)
+        verify { repository.search("bar", 10) }
+    }
+
+    @Test
+    fun testChangeWhileObserved() {
+        viewModel.searchResults.observeForever(mockk())
+        viewModel.setQuery("foo", 10)
+        viewModel.setQuery("bar", 10)
+
+        verify { repository.search("foo", 10) }
+        verify { repository.search("bar", 10) }
+    }
+
+    @Test
+    fun testSearchNextPageWithoutQuery() {
+        viewModel.searchResults.observeForever(mockk())
         viewModel.loadNextPage()
         verify { repository wasNot Called }
     }
 
     @Test
-    fun basic() {
-        val result = mockk<Observer<Resource<List<Repo>>>>()
-        viewModel.searchResults.observeForever(result)
+    fun testSearchNextPageWithQuery() {
+        viewModel.searchResults.observeForever(mockk())
         viewModel.setQuery("foo", 10)
-        verify { repository.search("foo", 10, any(), any(), any()) }
-        verify { repository.searchNextPage("foo", 10, any(), any()) wasNot Called }
-    }
+        verify { repository.search("foo", 10) }
+        clearMocks(repository)
 
-    @Test
-    fun noObserverNoQuery() = runTest {
-        every { repository.searchNextPage("foo", 10, any(), any()) } returns mockk(relaxed = true)
-        viewModel.setQuery("foo", 10)
-        verify { repository.search("foo", 10, any(), any(), any()) wasNot Called }
-        // Next page is user interaction and even if loading state is not observed, we query
-        // would be better to avoid that if main search query is not observed
         viewModel.loadNextPage()
-        verify { repository.searchNextPage("foo", 10, any(), any()) }
+        verify { repository.searchNextPage("foo", 10) }
     }
 
     @Test
-    fun swap() {
+    fun testSearchNextPageWhenChangeQuery() {
         val nextPage = MutableLiveData<Resource<Boolean>?>()
-        every { repository.searchNextPage("foo", 10, any(), any()) } returns nextPage
+        every { repository.searchNextPage("foo", 10) } returns nextPage
 
-        val result = mockk<Observer<Resource<List<Repo>>>>()
-        viewModel.searchResults.observeForever(result)
-        verify { repository wasNot Called }
+        viewModel.searchResults.observeForever(mockk(relaxed = true))
         viewModel.setQuery("foo", 10)
-        verify { repository.search("foo", 10, any(), any(), any()) }
+        verify { repository.search("foo", 10) }
 
+        viewModel.loadMoreState.observeForever(mockk(relaxed = true))
         viewModel.loadNextPage()
-        viewModel.loadMoreStatus.observeForever(mockk(relaxed = true))
-        verify { repository.searchNextPage("foo", 10, any(), any()) }
+        verify { repository.searchNextPage("foo", 10) }
         assertEquals(nextPage.hasActiveObservers(), true)
+
         viewModel.setQuery("bar", 10)
         assertEquals(nextPage.hasActiveObservers(), false)
-        verify { repository.search("bar", 10, any(), any(), any()) }
-        verify { repository.searchNextPage("bar", 10, any(), any()) wasNot Called }
+        verify { repository.search("bar", 10) }
+        verify { repository.searchNextPage("bar", 10) wasNot Called }
     }
 
     @Test
-    fun retry() {
+    fun testRetry() {
         viewModel.retry()
         verify { repository wasNot Called }
+
         viewModel.setQuery("foo", 10)
         viewModel.retry()
         verify { repository wasNot Called }
+
         viewModel.searchResults.observeForever(mockk())
-        verify { repository.search("foo", 10, any(), any(), any()) }
+        verify { repository.search("foo", 10) }
         clearMocks(repository)
+
         viewModel.retry()
-        verify { repository.search("foo", 10, any(), any(), any()) }
+        verify { repository.search("foo", 10) }
     }
 
     @Test
-    fun resetSameQuery() {
-        viewModel.searchResults.observeForever(mockk())
+    fun testBlankQuery() {
+        viewModel.searchResults.observeForever(mockk(relaxed = true))
         viewModel.setQuery("foo", 10)
-        verify { repository.search("foo", 10, any(), any(), any()) }
+        verify { repository.search("foo", 10) }
         clearMocks(repository)
-        viewModel.setQuery("foo", 10)
+
+        viewModel.setQuery("", 10)
         verify { repository wasNot Called }
+    }
+
+    @Test
+    fun testResetQuery() {
+        val observer = mockk<Observer<SearchViewModel.Query>>(relaxed = true)
+        viewModel.query.observeForever(observer)
+
+        viewModel.setQuery("foo", 10)
+        verify { observer.onChanged(SearchViewModel.Query("foo", 10)) }
+        clearMocks(observer)
+
+        viewModel.setQuery("foo", 10)
+        verify { observer wasNot Called }
         viewModel.setQuery("bar", 10)
-        verify { repository.search("bar", 10, any(), any(), any()) }
+        verify { observer.onChanged(SearchViewModel.Query("bar", 10)) }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun update() = runTest {
+    fun testUpdate() = runTest {
         val current = TestUtil.createRepo("a", "b", "c")
         val updated = current.copy(bookmark = true)
         viewModel.toggleBookmark(current)
-        advanceUntilIdle()   // Yields to perform the registrations
+        advanceUntilIdle()
         coVerify { repository.updateRepo(updated) }
     }
 

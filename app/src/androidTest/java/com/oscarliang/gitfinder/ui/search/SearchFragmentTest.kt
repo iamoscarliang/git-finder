@@ -52,17 +52,17 @@ class SearchFragmentTest {
 
     private lateinit var navController: NavController
     private lateinit var viewModel: SearchViewModel
-    private lateinit var mockBindingAdapter: FragmentBindingAdapters
+    private lateinit var bindingAdapter: FragmentBindingAdapters
     private val searchResults = MutableLiveData<Resource<List<Repo>>>()
-    private val loadMoreStatus = MutableLiveData<SearchViewModel.LoadMoreState>()
+    private val loadMoreState = MutableLiveData<SearchViewModel.LoadMoreState>()
 
     @Before
     fun init() {
         navController = mockk<NavController>(relaxed = true)
         viewModel = mockk<SearchViewModel>(relaxed = true)
-        mockBindingAdapter = mockk<FragmentBindingAdapters>(relaxed = true)
+        bindingAdapter = mockk<FragmentBindingAdapters>(relaxed = true)
         every { viewModel.searchResults } returns searchResults
-        every { viewModel.loadMoreStatus } returns loadMoreStatus
+        every { viewModel.loadMoreState } returns loadMoreState
         val scenario = launchFragmentInContainer(themeResId = R.style.Theme_GitFinder) {
             // Use a TestRunner to load a empty module and inject
             // a mock ViewModel into fragment to verify interaction
@@ -74,7 +74,7 @@ class SearchFragmentTest {
             SearchFragment().apply {
                 dataBindingComponent = object : DataBindingComponent {
                     override fun getFragmentBindingAdapters(): FragmentBindingAdapters {
-                        return mockBindingAdapter
+                        return bindingAdapter
                     }
                 }
             }
@@ -86,17 +86,17 @@ class SearchFragmentTest {
     }
 
     @Test
-    fun emptySearch() {
+    fun testBlankSearch() {
         onView(withId(R.id.edit_search)).perform(
             typeText(" "),
             pressKey(KeyEvent.KEYCODE_ENTER)
         )
-        // Test is the SnackBar show when searching blank input
+        // Test is the snack bar show when searching blank input
         onView(withText(getString(R.string.empty_search))).check(matches(isDisplayed()))
     }
 
     @Test
-    fun search() {
+    fun testSearchLoading() {
         onView(withId(R.id.shimmer_layout)).check(matches(not(isDisplayed())))
         onView(withId(R.id.edit_search)).perform(
             typeText("foo"),
@@ -108,15 +108,7 @@ class SearchFragmentTest {
     }
 
     @Test
-    fun loadResults() {
-        val repo = TestUtil.createRepo("foo", "bar", "owner")
-        searchResults.postValue(Resource.success(listOf(repo)))
-        onView(withId(R.id.shimmer_layout)).check(matches(not(isDisplayed())))
-        onView(listMatcher().atPosition(0)).check(matches(hasDescendant(withText("foo"))))
-    }
-
-    @Test
-    fun dataWithLoading() {
+    fun testSearchLoadingWithData() {
         val repo = TestUtil.createRepo("foo", "bar", "owner")
         searchResults.postValue(Resource.loading(listOf(repo)))
         onView(withId(R.id.shimmer_layout)).check(matches(not(isDisplayed())))
@@ -124,14 +116,32 @@ class SearchFragmentTest {
     }
 
     @Test
-    fun error() {
-        searchResults.postValue(Resource.error("Failed to load", null))
-        onView(withId(R.id.text_error)).check(matches(isDisplayed()))
+    fun testSearchSuccess() {
+        val repo = TestUtil.createRepo("foo", "bar", "owner")
+        searchResults.postValue(Resource.success(listOf(repo)))
+        onView(withId(R.id.shimmer_layout)).check(matches(not(isDisplayed())))
+        onView(listMatcher().atPosition(0)).check(matches(hasDescendant(withText("foo"))))
     }
 
     @Test
-    fun refresh() {
-        searchResults.postValue(Resource.error("Failed to load", null))
+    fun testSearchError() {
+        searchResults.postValue(Resource.error("idk", null))
+        onView(withId(R.id.text_error)).check(matches(isDisplayed()))
+        onView(withId(R.id.text_error)).check(matches(withText("idk")))
+    }
+
+    @Test
+    fun testSearchNull() {
+        val repo = TestUtil.createRepo("foo", "bar", "owner")
+        searchResults.postValue(Resource.success(listOf(repo)))
+        onView(listMatcher().atPosition(0)).check(matches(hasDescendant(withText("foo"))))
+        searchResults.postValue(null)
+        onView(listMatcher().atPosition(0)).check(doesNotExist())
+    }
+
+    @Test
+    fun testRefresh() {
+        searchResults.postValue(Resource.error("idk", null))
         onView(withId(R.id.shimmer_layout)).check(matches(not(isDisplayed())))
         onView(withId(R.id.swipe_refresh_layout)).perform(swipeDown())
         verify { viewModel.retry() }
@@ -146,16 +156,7 @@ class SearchFragmentTest {
     }
 
     @Test
-    fun nullResult() {
-        val repo = TestUtil.createRepo("foo", "bar", "owner")
-        searchResults.postValue(Resource.success(listOf(repo)))
-        onView(listMatcher().atPosition(0)).check(matches(hasDescendant(withText("foo"))))
-        searchResults.postValue(null)
-        onView(listMatcher().atPosition(0)).check(doesNotExist())
-    }
-
-    @Test
-    fun loadMore() {
+    fun testSearchNextPage() {
         val repos = TestUtil.createRepos(10, "foo", "bar", "owner")
         searchResults.postValue(Resource.success(repos))
         onView(listMatcher().atPosition(9)).perform(nestedScrollTo())
@@ -164,21 +165,21 @@ class SearchFragmentTest {
     }
 
     @Test
-    fun loadMoreProgress() {
-        loadMoreStatus.postValue(SearchViewModel.LoadMoreState(true, null))
+    fun testLoadMoreState() {
+        loadMoreState.postValue(SearchViewModel.LoadMoreState(true, true, null))
         onView(withId(R.id.progressbar)).check(matches(isDisplayed()))
-        loadMoreStatus.postValue(SearchViewModel.LoadMoreState(false, null))
+        loadMoreState.postValue(SearchViewModel.LoadMoreState(false, true, null))
         onView(withId(R.id.progressbar)).check(matches(not(isDisplayed())))
     }
 
     @Test
-    fun loadMoreProgressError() {
-        loadMoreStatus.postValue(SearchViewModel.LoadMoreState(true, "Failed to load"))
-        onView(withText("Failed to load")).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+    fun testLoadMoreStateError() {
+        loadMoreState.postValue(SearchViewModel.LoadMoreState(true, false, "idk"))
+        onView(withText("idk")).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
 
     @Test
-    fun navigateToDetail() {
+    fun testNavigateToDetail() {
         val repo = TestUtil.createRepo("foo", "bar", "owner").copy(url = "abc")
         searchResults.postValue(Resource.success(listOf(repo)))
         onView(withText("foo")).perform(click())
@@ -186,7 +187,7 @@ class SearchFragmentTest {
     }
 
     @Test
-    fun clickBookmark() {
+    fun testBookmark() {
         val repo = TestUtil.createRepo("foo", "bar", "owner")
         searchResults.postValue(Resource.success(listOf(repo)))
         onView(withId(R.id.btn_bookmark)).perform(click())

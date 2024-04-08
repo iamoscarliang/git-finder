@@ -1,110 +1,39 @@
 package com.oscarliang.gitfinder.util
 
-import androidx.annotation.MainThread
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import com.oscarliang.gitfinder.api.ApiEmptyResponse
-import com.oscarliang.gitfinder.api.ApiErrorResponse
-import com.oscarliang.gitfinder.api.ApiResponse
-import com.oscarliang.gitfinder.api.ApiSuccessResponse
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 
-abstract class NetworkBoundResource<ResultType, RequestType>
-@MainThread constructor(
-    private val coroutineScope: CoroutineScope,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val mainDispatcher: CoroutineDispatcher
-) {
+abstract class NetworkBoundResource<ResultType, RequestType> {
 
-    private val result = MediatorLiveData<Resource<ResultType>>()
+    fun asLiveData() = liveData<Resource<ResultType>> {
+        emit(Resource.loading(null))
 
-    init {
-        result.value = Resource.loading(null)
-        @Suppress("LeakingThis")
-        val dbSource = loadFromDb()
-        result.addSource(dbSource) { data ->
-            result.removeSource(dbSource)
-            if (shouldFetch(data)) {
-                fetchFromNetwork(dbSource)
-            } else {
-                result.addSource(dbSource) { newData ->
-                    setValue(Resource.success(newData))
-                }
+        if (shouldFetch(query())) {
+            val disposable = emitSource(queryObservable().map { Resource.loading(it) })
+
+            try {
+                val fetchedData = fetch()
+                // Stop the previous emission to avoid dispatching the saveFetchResult as loading state
+                disposable.dispose()
+                saveFetchResult(fetchedData)
+                // Re-attach the emission as success state
+                emitSource(queryObservable().map { Resource.success(it) })
+            } catch (e: Exception) {
+                onFetchFailed(e)
+                emitSource(queryObservable().map {
+                    Resource.error(e.message ?: "Unknown error", it)
+                })
             }
+        } else {
+            emitSource(queryObservable().map { Resource.success(it) })
         }
     }
 
-    private fun fetchFromNetwork(dbSource: LiveData<ResultType>) {
-        val apiResponse = createCall()
-        // We re-attach dbSource as a new source, it will dispatch its latest value quickly
-        result.addSource(dbSource) { newData ->
-            setValue(Resource.loading(newData))
-        }
-        result.addSource(apiResponse) { response ->
-            result.removeSource(apiResponse)
-            result.removeSource(dbSource)
-            when (response) {
-                is ApiSuccessResponse -> {
-                    coroutineScope.launch(ioDispatcher) {
-                        saveCallResult(processResponse(response))
-                        withContext(mainDispatcher) {
-                            // We specially request a new live data,
-                            // otherwise we will get immediately last cached value,
-                            // which may not be updated with latest results received from network.
-                            result.addSource(loadFromDb()) { newData ->
-                                setValue(Resource.success(newData))
-                            }
-                        }
-                    }
-                }
-
-                is ApiEmptyResponse -> {
-                    coroutineScope.launch(mainDispatcher) {
-                        // Reload from disk whatever we had
-                        result.addSource(loadFromDb()) { newData ->
-                            setValue(Resource.success(newData))
-                        }
-                    }
-                }
-
-                is ApiErrorResponse -> {
-                    onFetchFailed()
-                    result.addSource(dbSource) { newData ->
-                        setValue(Resource.error(response.errorMessage, newData))
-                    }
-                }
-            }
-        }
-    }
-
-    fun asLiveData() = result as LiveData<Resource<ResultType>>
-
-    @MainThread
-    private fun setValue(newValue: Resource<ResultType>) {
-        if (result.value != newValue) {
-            result.value = newValue
-        }
-    }
-
-    @WorkerThread
-    protected open fun processResponse(response: ApiSuccessResponse<RequestType>) = response.body
-
-    @WorkerThread
-    protected abstract fun saveCallResult(item: RequestType)
-
-    @MainThread
-    protected abstract fun shouldFetch(data: ResultType?): Boolean
-
-    @MainThread
-    protected abstract fun loadFromDb(): LiveData<ResultType>
-
-    @MainThread
-    protected abstract fun createCall(): LiveData<ApiResponse<RequestType>>
-
-    protected open fun onFetchFailed() {}
-
+    abstract suspend fun query(): ResultType
+    abstract fun queryObservable(): LiveData<ResultType>
+    abstract suspend fun fetch(): RequestType
+    abstract suspend fun saveFetchResult(data: RequestType)
+    open fun onFetchFailed(exception: Exception) = Unit
+    open fun shouldFetch(data: ResultType) = true
 }

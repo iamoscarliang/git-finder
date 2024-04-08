@@ -3,23 +3,27 @@ package com.oscarliang.gitfinder.repository
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.oscarliang.gitfinder.api.ApiResponse
+import androidx.room.withTransaction
 import com.oscarliang.gitfinder.api.GithubService
 import com.oscarliang.gitfinder.api.RepoSearchResponse
 import com.oscarliang.gitfinder.db.GithubDatabase
 import com.oscarliang.gitfinder.db.RepoDao
 import com.oscarliang.gitfinder.model.Repo
 import com.oscarliang.gitfinder.model.RepoSearchResult
-import com.oscarliang.gitfinder.util.AbsentLiveData
 import com.oscarliang.gitfinder.util.MainDispatcherRule
+import com.oscarliang.gitfinder.util.RateLimiter
 import com.oscarliang.gitfinder.util.Resource
 import com.oscarliang.gitfinder.util.TestUtil
 import io.mockk.Called
 import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.verify
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -27,134 +31,156 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import retrofit2.Response
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class NewsRepositoryTest {
+class RepoRepositoryTest {
 
-    @get:Rule
+    @Rule
+    @JvmField
     val mainDispatcherRule = MainDispatcherRule()
 
     @Rule
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var repository: RepoRepository
     private val dao = mockk<RepoDao>(relaxed = true)
     private val service = mockk<GithubService>(relaxed = true)
+    private val rateLimiter = mockk<RateLimiter<String>>(relaxed = true)
+    private lateinit var repository: RepoRepository
 
     @Before
     fun init() {
-        val db = mockk<GithubDatabase> {
-            // We run the db transaction in ioDispatcher, but runInTransaction need
-            // dependency of main looper. Whenever runInTransaction is called we take
-            // the Runnable argument and run it
-            every { runInTransaction(any()) } answers {
-                firstArg<Runnable>().run()
-            }
+        mockkStatic(
+            "androidx.room.RoomDatabaseKt"
+        )
+        val db = mockk<GithubDatabase>(relaxed = true)
+        val transaction = slot<suspend () -> Unit>()
+        coEvery { db.withTransaction(capture(transaction)) } coAnswers {
+            transaction.captured.invoke()
         }
         every { db.repoDao() } returns dao
-        repository = RepoRepository(db, dao, service)
+        repository = RepoRepository(
+            db = db,
+            repoDao = dao,
+            service = service,
+            rateLimiter = rateLimiter
+        )
     }
 
     @Test
-    fun searchNextPageNull() = runTest {
-        every { dao.getSearchResult("foo") } returns null
+    fun testSearchFromDb() = runTest {
+        every { rateLimiter.shouldFetch("foo") } returns false
+        val ids = listOf(0, 1)
+        val dbSearchResult = MutableLiveData<RepoSearchResult>()
+        every { dao.getRepoSearchResult("foo") } returns dbSearchResult
+        val dbData = MutableLiveData<List<Repo>>()
+        every { dao.getOrdered(ids) } returns dbData
+        coEvery { dao.findRepoSearchResult("foo") } returns null
+
+        val observer = mockk<Observer<Resource<List<Repo>>>>(relaxed = true)
+        repository.search("foo", 10).observeForever(observer)
+        advanceUntilIdle()
+        verify { observer.onChanged(Resource.loading(null)) }
+        clearMocks(observer)
+
+        val searchResult = RepoSearchResult("foo", 2, ids)
+        dbSearchResult.postValue(searchResult)
+        val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
+        dbData.postValue(repos)
+        verify { observer.onChanged(Resource.success(repos)) }
+        verify { service wasNot Called }
+    }
+
+    @Test
+    fun testSearchFromNetwork() = runTest {
+        every { rateLimiter.shouldFetch("foo") } returns true
+        val ids = listOf(0, 1)
+        val dbSearchResult = MutableLiveData<RepoSearchResult>()
+        every { dao.getRepoSearchResult("foo") } returns dbSearchResult
+        val dbData = MutableLiveData<List<Repo>>()
+        every { dao.getOrdered(ids) } returns dbData
+        val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
+        coEvery { dao.findBookmarks() } returns repos
+        coEvery { dao.findRepoSearchResult("foo") } returns null
+        val response = RepoSearchResponse(2, repos)
+        coEvery { service.searchRepos("foo", 10) } returns response
+
+        val observer = mockk<Observer<Resource<List<Repo>>>>(relaxed = true)
+        repository.search("foo", 10).observeForever(observer)
+        advanceUntilIdle()
+        verify { observer.onChanged(Resource.loading(null)) }
+        clearMocks(observer)
+
+        val searchResult = RepoSearchResult("foo", 2, ids)
+        dbSearchResult.postValue(searchResult)
+        dbData.postValue(repos)
+        coVerify { service.searchRepos("foo", 10) }
+        coVerify { dao.insertRepos(repos) }
+        coVerify { dao.insertRepoSearchResult(searchResult) }
+        verify { observer.onChanged(Resource.success(repos)) }
+    }
+
+    @Test
+    fun searchFromNetworkError() = runTest {
+        every { rateLimiter.shouldFetch("foo") } returns true
+        val ids = listOf(0, 1)
+        val dbSearchResult = MutableLiveData<RepoSearchResult>()
+        every { dao.getRepoSearchResult("foo") } returns dbSearchResult
+        val dbData = MutableLiveData<List<Repo>>()
+        every { dao.getOrdered(ids) } returns dbData
+        val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
+        coEvery { dao.findBookmarks() } returns repos
+        coEvery { dao.findRepoSearchResult("foo") } returns null
+        coEvery { service.searchRepos("foo", 10) } throws Exception("idk")
+
+        val observer = mockk<Observer<Resource<List<Repo>>>>(relaxed = true)
+        repository.search("foo", 10).observeForever(observer)
+        advanceUntilIdle()
+        verify { observer.onChanged(Resource.loading(null)) }
+        clearMocks(observer)
+
+        val searchResult = RepoSearchResult("foo", 2, ids)
+        dbSearchResult.postValue(searchResult)
+        dbData.postValue(repos)
+        coVerify { service.searchRepos("foo", 10) }
+        coVerify { observer.onChanged(Resource.error("idk", repos)) }
+        verify { rateLimiter.reset("foo") }
+    }
+
+    @Test
+    fun testSearchNextPageNull() = runTest {
+        coEvery { dao.findRepoSearchResult("foo") } returns null
         val observer = mockk<Observer<Resource<Boolean>?>>(relaxed = true)
-        repository.searchNextPage("foo", 10, this, StandardTestDispatcher())
-            .observeForever(observer)
-        advanceUntilIdle()   // Yields to perform the registrations
+        repository.searchNextPage("foo", 10).observeForever(observer)
+        advanceUntilIdle()
         verify { observer.onChanged(null) }
     }
 
     @Test
-    fun searchFromDb() = runTest {
+    fun testSearchNextPageFalse() = runTest {
         val ids = listOf(1, 2)
-        val observer = mockk<Observer<Resource<List<Repo>>>>(relaxed = true)
-        val dbSearchResult = MutableLiveData<RepoSearchResult>()
-        every { dao.search("foo") } returns dbSearchResult
-        val repositories = MutableLiveData<List<Repo>>()
-        every { dao.getOrdered(ids) } returns repositories
-
-        repository.search(
-            "foo", 10, this,
-            StandardTestDispatcher(testScheduler),
-            mainDispatcherRule.testDispatcher
-        ).observeForever(observer)
-
-        verify { observer.onChanged(Resource.loading(null)) }
-        verify { service wasNot Called }
-        clearMocks(observer)
-
-        val dbResult = RepoSearchResult("foo", ids)
-        dbSearchResult.postValue(dbResult)
-
-        val repoList = listOf<Repo>()
-        repositories.postValue(repoList)
-        verify { observer.onChanged(Resource.success(repoList)) }
-        verify { service wasNot Called }
+        val searchResult = RepoSearchResult("foo", 2, ids)
+        coEvery { dao.findRepoSearchResult("foo") } returns searchResult
+        val observer = mockk<Observer<Resource<Boolean>?>>(relaxed = true)
+        repository.searchNextPage("foo", 10).observeForever(observer)
+        advanceUntilIdle()
+        verify { observer.onChanged(Resource.success(false)) }
     }
 
     @Test
-    fun searchFromServer() = runTest {
+    fun testSearchNextPageTrue() = runTest {
         val ids = listOf(1, 2)
-        val repo1 = TestUtil.createRepo(1, "repo 1", "desc 1", "owner")
-        val repo2 = TestUtil.createRepo(2, "repo 2", "desc 2", "owner")
+        val searchResult = RepoSearchResult("foo", 10, ids)
+        coEvery { dao.findRepoSearchResult("foo") } returns searchResult
+        val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
+        val response = RepoSearchResponse(2, repos)
+        coEvery { service.searchRepos("foo", 10, 2) } returns response
 
-        val observer = mockk<Observer<Resource<List<Repo>>>>(relaxed = true)
-        val dbSearchResult = MutableLiveData<RepoSearchResult>()
-        every { dao.search("foo") } returns dbSearchResult
-        val repositories = MutableLiveData<List<Repo>>()
-        every { dao.getOrdered(ids) } returns repositories
-
-        val repoList = listOf(repo1, repo2)
-        val apiResponse = RepoSearchResponse(repoList)
-
-        val callLiveData = MutableLiveData<ApiResponse<RepoSearchResponse>>()
-        every { service.searchRepos("foo", 10) } returns callLiveData
-
-        repository.search(
-            "foo", 10, this,
-            StandardTestDispatcher(testScheduler),
-            mainDispatcherRule.testDispatcher
-        ).observeForever(observer)
-
-        verify { observer.onChanged(Resource.loading(null)) }
-        verify { service wasNot Called }
-        clearMocks(observer)
-
-        dbSearchResult.postValue(null)
-        verify { dao.getOrdered(any()) wasNot Called }
-        verify { service.searchRepos("foo", 10) }
-
-        val updatedResult = MutableLiveData<RepoSearchResult>()
-        every { dao.search("foo") } returns updatedResult
-        updatedResult.postValue(RepoSearchResult("foo", ids))
-
-        callLiveData.postValue(ApiResponse.create(Response.success(apiResponse)))
-        advanceUntilIdle()   // Yields to perform the registrations
-        verify { dao.insertRepos(repoList) }
-        repositories.postValue(repoList)
-        verify { observer.onChanged(Resource.success(repoList)) }
-        verify { service.searchRepos(any(), any()) wasNot Called }
-    }
-
-    @Test
-    fun searchFromServerError() = runTest {
-        every { dao.search("foo") } returns AbsentLiveData.create()
-        val apiResponse = MutableLiveData<ApiResponse<RepoSearchResponse>>()
-        every { service.searchRepos("foo", 10) } returns apiResponse
-
-        val observer = mockk<Observer<Resource<List<Repo>>>>(relaxed = true)
-        repository.search(
-            "foo", 10, this,
-            StandardTestDispatcher(testScheduler),
-            mainDispatcherRule.testDispatcher
-        ).observeForever(observer)
-        verify { observer.onChanged(Resource.loading(null)) }
-
-        apiResponse.postValue(ApiResponse.create(Exception("idk")))
-        verify { observer.onChanged(Resource.error("idk", null)) }
+        val observer = mockk<Observer<Resource<Boolean>?>>(relaxed = true)
+        repository.searchNextPage("foo", 10).observeForever(observer)
+        advanceUntilIdle()
+        verify { observer.onChanged(Resource.success(true)) }
     }
 
 }

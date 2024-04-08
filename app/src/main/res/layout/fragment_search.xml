@@ -15,11 +15,11 @@
         <import type="androidx.lifecycle.LiveData" />
 
         <variable
-            name="query"
-            type="String" />
+            name="isRunning"
+            type="boolean" />
 
         <variable
-            name="loadingMore"
+            name="hasMore"
             type="boolean" />
 
         <variable
@@ -100,12 +100,12 @@
                         android:id="@+id/layout_loading_state"
                         layout="@layout/layout_loading_state"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/layout_loading_state_height"
+                        app:hasMore="@{hasMore}"
+                        app:isRunning="@{isRunning}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:loading="@{loadingMore}"
-                        app:resource="@{searchResults}" />
+                        app:layout_constraintStart_toStartOf="parent" />
 
                     <com.facebook.shimmer.ShimmerFrameLayout
                         android:id="@+id/shimmer_layout"

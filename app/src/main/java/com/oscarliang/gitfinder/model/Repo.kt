@@ -8,30 +8,30 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = "repos")
 data class Repo(
     @PrimaryKey
-    @field:SerializedName("id")
+    @SerializedName("id")
     val id: Int,
-    @field:SerializedName("name")
+    @SerializedName("name")
     val name: String,
-    @field:SerializedName("description")
+    @SerializedName("description")
     val description: String?,
-    @field:SerializedName("owner")
-    @field:Embedded(prefix = "owner_")
+    @SerializedName("owner")
+    @Embedded(prefix = "owner_")
     val owner: Owner,
-    @field:SerializedName("stargazers_count")
+    @SerializedName("stargazers_count")
     val stars: Int,
-    @field:SerializedName("forks_count")
+    @SerializedName("forks_count")
     val forks: Int,
-    @field:SerializedName("language")
+    @SerializedName("language")
     val language: String?,
-    @field:SerializedName("html_url")
+    @SerializedName("html_url")
     val url: String,
-    val bookmark: Boolean = false
+    var bookmark: Boolean = false
 ) {
 
     data class Owner(
-        @field:SerializedName("login")
+        @SerializedName("login")
         val name: String,
-        @field:SerializedName("avatar_url")
+        @SerializedName("avatar_url")
         val avatarUrl: String?
     )
 

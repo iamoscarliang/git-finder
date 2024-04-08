@@ -2,19 +2,16 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="BookmarksFragmentTest">
+        <State />
+      </entry>
+      <entry key="RepoDaoTest">
+        <State />
+      </entry>
       <entry key="SearchFragmentTest">
         <State />
       </entry>
       <entry key="app">
-        <State />
-      </entry>
-      <entry key="navigateToDetail()">
-        <State />
-      </entry>
-      <entry key="nullResult()">
-        <State />
-      </entry>
-      <entry key="refresh()">
         <State />
       </entry>
     </value>

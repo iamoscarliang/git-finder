@@ -92,12 +92,14 @@ class SearchFragment : Fragment() {
             adapter.submitList(result?.data)
         }
 
-        viewModel.loadMoreStatus.observe(viewLifecycleOwner) { loadingMore ->
-            if (loadingMore == null) {
-                binding.loadingMore = false
+        viewModel.loadMoreState.observe(viewLifecycleOwner) { state ->
+            if (state == null) {
+                binding.isRunning = false
+                binding.hasMore = false
             } else {
-                binding.loadingMore = loadingMore.isRunning
-                val error = loadingMore.errorMessageIfNotHandled
+                binding.isRunning = state.isRunning
+                binding.hasMore = state.hasMore
+                val error = state.errorMessageIfNotHandled
                 if (error != null) {
                     Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
                 }
@@ -128,7 +130,8 @@ class SearchFragment : Fragment() {
         dismissKeyboard(v.windowToken)
         val query = binding.editSearch.text.toString()
         if (query.isBlank()) {
-            Snackbar.make(binding.root, getString(R.string.empty_search), Snackbar.LENGTH_LONG).show()
+            Snackbar.make(binding.root, getString(R.string.empty_search), Snackbar.LENGTH_LONG)
+                .show()
         } else {
             viewModel.setQuery(query, 10)
         }

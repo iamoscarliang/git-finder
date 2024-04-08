@@ -6,12 +6,13 @@ import com.oscarliang.gitfinder.db.GithubDatabase
 import com.oscarliang.gitfinder.repository.RepoRepository
 import com.oscarliang.gitfinder.ui.bookmarks.BookmarksViewModel
 import com.oscarliang.gitfinder.ui.search.SearchViewModel
-import com.oscarliang.gitfinder.util.LiveDataCallAdapterFactory
+import com.oscarliang.gitfinder.util.RateLimiter
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 val appModule = module {
 
@@ -19,7 +20,6 @@ val appModule = module {
         Retrofit.Builder()
             .baseUrl("https://api.github.com/")
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
             .create(GithubService::class.java)
     }
@@ -36,7 +36,11 @@ val appModule = module {
     }
 
     single {
-        RepoRepository(get(), get(), get())
+        RateLimiter<String>(10, TimeUnit.MINUTES)
+    }
+
+    single {
+        RepoRepository(get(), get(), get(), get())
     }
 
     viewModel {

@@ -3,26 +3,18 @@
 
     <data>
 
-        <import type="com.oscarliang.gitfinder.model.Repo" />
-
-        <import type="java.util.List" />
-
-        <import type="com.oscarliang.gitfinder.util.Resource" />
-
-        <import type="com.oscarliang.gitfinder.util.State" />
-
         <variable
-            name="loading"
+            name="isRunning"
             type="boolean" />
 
         <variable
-            name="resource"
-            type="Resource&lt;List&lt;Repo>>" />
+            name="hasMore"
+            type="boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="@dimen/layout_loading_state_height">
 
         <ProgressBar
             android:id="@+id/progressbar"
@@ -35,7 +27,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHide="@{loading}" />
+            app:showHide="@{isRunning}" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -48,7 +40,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:showHide="@{!loading &amp;&amp; resource.data.size() > 0}" />
+            app:showHide="@{!hasMore}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -10,5 +10,6 @@ import com.oscarliang.gitfinder.db.GithubTypeConverters
 data class RepoSearchResult(
     @PrimaryKey
     val query: String,
+    val count: Int,
     val repoIds: List<Int>
 )

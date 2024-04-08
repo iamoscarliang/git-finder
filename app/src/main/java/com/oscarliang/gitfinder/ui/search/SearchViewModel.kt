@@ -11,9 +11,6 @@ import com.oscarliang.gitfinder.repository.RepoRepository
 import com.oscarliang.gitfinder.util.AbsentLiveData
 import com.oscarliang.gitfinder.util.Resource
 import com.oscarliang.gitfinder.util.State
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -21,24 +18,17 @@ class SearchViewModel(
 ) : ViewModel() {
 
     private val _query: MutableLiveData<Query> = MutableLiveData()
-    private val nextPageHandler = NextPageHandler(repository, viewModelScope, Dispatchers.IO)
-
     val query: LiveData<Query>
         get() = _query
 
     val searchResults: LiveData<Resource<List<Repo>>> = _query.switchMap { input ->
         input.ifExists { query, number ->
-            repository.search(
-                query = query,
-                number = number,
-                coroutineScope = viewModelScope,
-                ioDispatcher = Dispatchers.IO,
-                mainDispatcher = Dispatchers.Main
-            )
+            repository.search(query, number)
         }
     }
 
-    val loadMoreStatus: LiveData<LoadMoreState>
+    private val nextPageHandler = NextPageHandler(repository)
+    val loadMoreState: LiveData<LoadMoreState>
         get() = nextPageHandler.loadMoreState
 
     fun setQuery(query: String, number: Int) {
@@ -85,7 +75,11 @@ class SearchViewModel(
         }
     }
 
-    class LoadMoreState(val isRunning: Boolean, val errorMessage: String?) {
+    class LoadMoreState(
+        val isRunning: Boolean,
+        val hasMore: Boolean,
+        val errorMessage: String?
+    ) {
         private var handledError = false
 
         val errorMessageIfNotHandled: String?
@@ -99,17 +93,13 @@ class SearchViewModel(
     }
 
     class NextPageHandler(
-        private val repository: RepoRepository,
-        private val coroutineScope: CoroutineScope,
-        private val ioDispatcher: CoroutineDispatcher
+        private val repository: RepoRepository
     ) : Observer<Resource<Boolean>?> {
 
         val loadMoreState = MutableLiveData<LoadMoreState>()
         private var nextPageLiveData: LiveData<Resource<Boolean>?>? = null
         private var query: String? = null
-        private var _hasMore: Boolean = false
-        val hasMore
-            get() = _hasMore
+        private var hasMore: Boolean = false
 
         init {
             reset()
@@ -124,10 +114,10 @@ class SearchViewModel(
             }
             unregister()
             this.query = query
-            nextPageLiveData =
-                repository.searchNextPage(query, number, coroutineScope, ioDispatcher)
+            nextPageLiveData = repository.searchNextPage(query, number)
             loadMoreState.value = LoadMoreState(
                 isRunning = true,
+                hasMore = true,
                 errorMessage = null
             )
             nextPageLiveData?.observeForever(this)
@@ -139,22 +129,24 @@ class SearchViewModel(
             } else {
                 when (value.state) {
                     State.SUCCESS -> {
-                        _hasMore = value.data == true
+                        hasMore = value.data == true
                         unregister()
                         loadMoreState.setValue(
                             LoadMoreState(
                                 isRunning = false,
+                                hasMore = hasMore,
                                 errorMessage = null
                             )
                         )
                     }
 
                     State.ERROR -> {
-                        _hasMore = true
+                        hasMore = true
                         unregister()
                         loadMoreState.setValue(
                             LoadMoreState(
                                 isRunning = false,
+                                hasMore = hasMore,
                                 errorMessage = value.message
                             )
                         )
@@ -170,16 +162,17 @@ class SearchViewModel(
         private fun unregister() {
             nextPageLiveData?.removeObserver(this)
             nextPageLiveData = null
-            if (_hasMore) {
+            if (hasMore) {
                 query = null
             }
         }
 
         fun reset() {
             unregister()
-            _hasMore = true
+            hasMore = true
             loadMoreState.value = LoadMoreState(
                 isRunning = false,
+                hasMore = true,
                 errorMessage = null
             )
         }

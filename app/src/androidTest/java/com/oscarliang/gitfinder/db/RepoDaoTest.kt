@@ -1,10 +1,12 @@
 package com.oscarliang.gitfinder.db
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.oscarliang.gitfinder.model.RepoSearchResult
 import com.oscarliang.gitfinder.util.TestUtil
 import com.oscarliang.gitfinder.util.getOrAwaitValue
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
@@ -14,47 +16,63 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RepoDaoTest : GithubDatabaseTest() {
 
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    @Rule
+    @JvmField
+    val instantExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun insertAndRead() {
-        val repo = TestUtil.createRepo(1, "foo", "bar", "owner")
-        db.repoDao().insertRepos(listOf(repo))
-        val loaded = db.repoDao().getRepoById(1).getOrAwaitValue()
-        assertNotNull(loaded)
-        assertEquals(loaded.name, "foo")
-        assertEquals(loaded.description, "bar")
-        assertEquals(loaded.owner.name, "owner")
+    fun testInsertAndLoad() = runTest {
+        val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
+        db.repoDao().insertRepos(repos)
+        val dbData = db.repoDao().findReposById(listOf(0, 1))
+        assertNotNull(dbData)
+        assertEquals(dbData.size, 2)
+
+        val repo1 = dbData[0]
+        assertEquals(repo1.id, 0)
+        assertEquals(repo1.name, "foo0")
+        assertEquals(repo1.description, "bar0")
+        assertEquals(repo1.owner.name, "owner0")
+
+        val repo2 = dbData[1]
+        assertEquals(repo2.id, 1)
+        assertEquals(repo2.name, "foo1")
+        assertEquals(repo2.description, "bar1")
+        assertEquals(repo2.owner.name, "owner1")
     }
 
 
     @Test(expected = AssertionError::class)
-    fun insertSearchResultWithoutRepo() {
-        db.repoDao().insertRepoSearchResults(RepoSearchResult("foo", listOf(1, 2)))
+    fun testInsertSearchResultWithoutRepo() = runTest {
+        db.repoDao().insertRepoSearchResult(RepoSearchResult("foo", 2, listOf(1, 2)))
         throw AssertionError("Must fail because repo does not exist")
     }
 
     @Test
-    fun insertSearchResult() {
+    fun testInsertSearchResult() = runTest {
         val repo = TestUtil.createRepos(2, "foo", "bar", "owner")
-        val searchResults = RepoSearchResult("foo", listOf(0, 1))
-        db.runInTransaction {
+        val searchResults = RepoSearchResult("foo", 2, listOf(0, 1))
+        db.withTransaction {
             db.repoDao().insertRepos(repo)
-            db.repoDao().insertRepoSearchResults(searchResults)
+            db.repoDao().insertRepoSearchResult(searchResults)
         }
 
-        val result = db.repoDao().search("foo").getOrAwaitValue()
-        val list = db.repoDao().getOrdered(result!!.repoIds).getOrAwaitValue()
-        assertEquals(list.size, 2)
+        val dbResult = db.repoDao().getRepoSearchResult("foo").getOrAwaitValue()
+        val dbData = db.repoDao().getOrdered(dbResult!!.repoIds).getOrAwaitValue()
+        assertNotNull(dbData)
+        assertEquals(dbData.size, 2)
 
-        val first = list[0]
-        assertEquals(first.name, "foo0")
-        assertEquals(first.description, "bar0")
+        val repo1 = dbData[0]
+        assertEquals(repo1.id, 0)
+        assertEquals(repo1.name, "foo0")
+        assertEquals(repo1.description, "bar0")
+        assertEquals(repo1.owner.name, "owner0")
 
-        val second = list[1]
-        assertEquals(second.name, "foo1")
-        assertEquals(second.description, "bar1")
+        val repo2 = dbData[1]
+        assertEquals(repo2.id, 1)
+        assertEquals(repo2.name, "foo1")
+        assertEquals(repo2.description, "bar1")
+        assertEquals(repo2.owner.name, "owner1")
     }
 
 }

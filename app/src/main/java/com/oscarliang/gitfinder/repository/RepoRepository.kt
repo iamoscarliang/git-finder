@@ -89,6 +89,7 @@ class RepoRepository(
             query = query,
             number = number,
             db = db,
+            repoDao = repoDao,
             githubService = service
         ).asLiveData()
     }

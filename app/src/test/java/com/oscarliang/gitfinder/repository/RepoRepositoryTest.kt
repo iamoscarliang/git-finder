@@ -101,7 +101,6 @@ class RepoRepositoryTest {
         val dbData = MutableLiveData<List<Repo>>()
         every { dao.getOrdered(ids) } returns dbData
         val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
-        coEvery { dao.findBookmarks() } returns repos
         coEvery { dao.findRepoSearchResult("foo") } returns null
         val response = RepoSearchResponse(2, repos)
         coEvery { service.searchRepos("foo", 10) } returns response
@@ -130,7 +129,6 @@ class RepoRepositoryTest {
         val dbData = MutableLiveData<List<Repo>>()
         every { dao.getOrdered(ids) } returns dbData
         val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
-        coEvery { dao.findBookmarks() } returns repos
         coEvery { dao.findRepoSearchResult("foo") } returns null
         coEvery { service.searchRepos("foo", 10) } throws Exception("idk")
 

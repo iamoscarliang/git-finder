@@ -30,75 +30,30 @@ class FetchNextSearchPageTask(
                 number = number,
                 page = currentCount / number + 1
             )
-            val fetchedData = response.items
+            val repos = response.items
+            val bookmarks = db.repoDao().findBookmarks()
+            repos.forEach { newData ->
+                // We prevent overriding bookmark field
+                newData.bookmark = bookmarks.any { currentData ->
+                    currentData.id == newData.id
+                }
+            }
 
             // We merge all new search result into current result list
-            val ids = arrayListOf<Int>()
-            ids.addAll(current.repoIds)
-            ids.addAll(fetchedData.map { it.id })
+            val repoIds = mutableListOf<Int>()
+            repoIds.addAll(current.repoIds)
+            repoIds.addAll(repos.map { it.id })
             val merged = RepoSearchResult(
                 query = query,
                 count = response.count,
-                repoIds = ids
+                repoIds = repoIds
             )
-            db.repoDao().insertRepos(fetchedData)
+            db.repoDao().insertRepos(repos)
             db.repoDao().insertRepoSearchResult(merged)
             emit(Resource.success(true))
         } catch (e: Exception) {
             emit(Resource.error(e.message ?: "Unknown error", true))
         }
     }
-
-//    private val _liveData = MutableLiveData<Resource<Boolean>?>()
-//    val liveData: MutableLiveData<Resource<Boolean>?> = _liveData
-//
-//    fun run() {
-//        val result = db.repoDao().getSearchResult(query)
-//        if (result == null || result.repoIds.isEmpty()) {
-//            _liveData.postValue(null)
-//            return
-//        }
-//        val current = result.repoIds.size
-//        if (current % number != 0) {
-//            _liveData.postValue(Resource.success(false))
-//            return
-//        }
-//        val newValue = try {
-//            val response = githubService.searchRepos(
-//                query = query,
-//                number = number,
-//                page = current / number + 1
-//            ).execute()
-//            when (val apiResponse = ApiResponse.create(response)) {
-//                is ApiSuccessResponse -> {
-//                    // We merge all new search result into current result list
-//                    val ids = arrayListOf<Int>()
-//                    ids.addAll(result.repoIds)
-//                    ids.addAll(apiResponse.body.items.map { it.id })
-//                    val merged = RepoSearchResult(
-//                        query,
-//                        ids
-//                    )
-//                    db.runInTransaction {
-//                        db.repoDao().insertRepos(apiResponse.body.items)
-//                        db.repoDao().insertRepoSearchResults(merged)
-//                    }
-//                    Resource.success(apiResponse.body.items.size == number)
-//                }
-//
-//                is ApiEmptyResponse -> {
-//                    Resource.success(false)
-//                }
-//
-//                is ApiErrorResponse -> {
-//                    Resource.error(apiResponse.errorMessage, true)
-//                }
-//            }
-//
-//        } catch (e: IOException) {
-//            Resource.error(e.message!!, true)
-//        }
-//        _liveData.postValue(newValue)
-//    }
 
 }

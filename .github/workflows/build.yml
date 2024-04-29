@@ -1,5 +1,5 @@
 name: Build
-on: [push]
+on: [ push ]
 
 jobs:
   unit-test:
@@ -28,16 +28,10 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Restart adb server
-        run: |
-          adb kill-server
-          adb start-server
-
       # Execute instrumentation tests
       - name: Run Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
+          api-level: 30
           target: google_apis
-          emulator-build: 7425822
           script: ./gradlew connectedAndroidTest

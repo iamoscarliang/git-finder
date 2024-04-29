@@ -39,4 +39,5 @@ jobs:
         with:
           api-level: 30
           target: google_apis
+          emulator-build: 7425822
           script: ./gradlew connectedAndroidTest

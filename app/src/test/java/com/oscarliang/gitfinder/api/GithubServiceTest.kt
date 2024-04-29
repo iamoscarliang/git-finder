@@ -18,7 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 @RunWith(JUnit4::class)
-class NewsServiceTest {
+class GithubServiceTest {
 
     @Rule
     @JvmField

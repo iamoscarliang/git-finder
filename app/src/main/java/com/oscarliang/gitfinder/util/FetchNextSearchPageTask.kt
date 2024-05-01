@@ -12,7 +12,7 @@ class FetchNextSearchPageTask(
     private val number: Int,
     private val db: GithubDatabase,
     private val repoDao: RepoDao,
-    private val githubService: GithubService
+    private val service: GithubService
 ) {
 
     fun asLiveData() = liveData {
@@ -28,7 +28,7 @@ class FetchNextSearchPageTask(
         }
 
         try {
-            val response = githubService.searchRepos(
+            val response = service.searchRepos(
                 query = query,
                 number = number,
                 page = currentCount / number + 1

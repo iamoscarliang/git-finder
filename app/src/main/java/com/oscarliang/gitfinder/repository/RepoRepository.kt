@@ -71,7 +71,7 @@ class RepoRepository(
                 }
             }
 
-            override fun shouldFetch(data: List<Repo>): Boolean {
+            override fun shouldFetch(data: List<Repo>?): Boolean {
                 return rateLimiter.shouldFetch(query)
             }
 
@@ -90,7 +90,7 @@ class RepoRepository(
             number = number,
             db = db,
             repoDao = repoDao,
-            githubService = service
+            service = service
         ).asLiveData()
     }
 

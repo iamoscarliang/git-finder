@@ -70,7 +70,7 @@ class RepoRepositoryTest {
 
     @Test
     fun testSearchFromDb() = runTest {
-        every { rateLimiter.shouldFetch("foo") } returns false
+        every { rateLimiter.shouldFetch(any(), any()) } returns false
         val ids = listOf(0, 1)
         val dbSearchResult = MutableLiveData<RepoSearchResult>()
         every { dao.getRepoSearchResult("foo") } returns dbSearchResult
@@ -94,7 +94,7 @@ class RepoRepositoryTest {
 
     @Test
     fun testSearchFromNetwork() = runTest {
-        every { rateLimiter.shouldFetch("foo") } returns true
+        every { rateLimiter.shouldFetch(any(), any()) } returns true
         val ids = listOf(0, 1)
         val dbSearchResult = MutableLiveData<RepoSearchResult>()
         every { dao.getRepoSearchResult("foo") } returns dbSearchResult
@@ -122,7 +122,7 @@ class RepoRepositoryTest {
 
     @Test
     fun searchFromNetworkError() = runTest {
-        every { rateLimiter.shouldFetch("foo") } returns true
+        every { rateLimiter.shouldFetch(any(), any()) } returns true
         val ids = listOf(0, 1)
         val dbSearchResult = MutableLiveData<RepoSearchResult>()
         every { dao.getRepoSearchResult("foo") } returns dbSearchResult
@@ -143,7 +143,7 @@ class RepoRepositoryTest {
         dbData.postValue(repos)
         coVerify { service.searchRepos("foo", 10) }
         coVerify { observer.onChanged(Resource.error("idk", repos)) }
-        verify { rateLimiter.reset("foo") }
+        verify { rateLimiter.reset(any()) }
     }
 
     @Test

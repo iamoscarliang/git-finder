@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
-import com.oscarliang.gitfinder.R
 import com.oscarliang.gitfinder.databinding.FragmentDetailBinding
 import com.oscarliang.gitfinder.util.autoCleared
 
@@ -20,10 +18,9 @@ class DetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val dataBinding = DataBindingUtil.inflate<FragmentDetailBinding>(
+    ): View {
+        val dataBinding = FragmentDetailBinding.inflate(
             inflater,
-            R.layout.fragment_detail,
             container,
             false
         )

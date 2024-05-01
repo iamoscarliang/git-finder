@@ -6,6 +6,9 @@ import com.oscarliang.gitfinder.db.GithubDatabase
 import com.oscarliang.gitfinder.repository.RepoRepository
 import com.oscarliang.gitfinder.ui.bookmarks.BookmarksViewModel
 import com.oscarliang.gitfinder.ui.search.SearchViewModel
+import com.oscarliang.gitfinder.util.DB_NAME
+import com.oscarliang.gitfinder.util.GITHUB_URL
+import com.oscarliang.gitfinder.util.REFRESH_TIMEOUT
 import com.oscarliang.gitfinder.util.RateLimiter
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -18,14 +21,14 @@ val appModule = module {
 
     single {
         Retrofit.Builder()
-            .baseUrl("https://api.github.com/")
+            .baseUrl(GITHUB_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(GithubService::class.java)
     }
 
     single {
-        Room.databaseBuilder(androidContext(), GithubDatabase::class.java, "repo.db")
+        Room.databaseBuilder(androidContext(), GithubDatabase::class.java, DB_NAME)
             .fallbackToDestructiveMigration()
             .build()
     }
@@ -36,7 +39,7 @@ val appModule = module {
     }
 
     single {
-        RateLimiter<String>(10, TimeUnit.MINUTES)
+        RateLimiter<String>(REFRESH_TIMEOUT, TimeUnit.MINUTES)
     }
 
     single {

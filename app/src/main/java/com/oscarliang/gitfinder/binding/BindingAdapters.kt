@@ -5,7 +5,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.oscarliang.gitfinder.R
 
@@ -27,14 +26,6 @@ object BindingAdapters {
             count.toString()
         }
         textView.text = text
-    }
-
-    @JvmStatic
-    @BindingAdapter("refreshHide")
-    fun refreshHide(view: SwipeRefreshLayout, isRefreshing: Boolean) {
-        if (view.isRefreshing) {
-            view.isRefreshing = isRefreshing
-        }
     }
 
     @JvmStatic

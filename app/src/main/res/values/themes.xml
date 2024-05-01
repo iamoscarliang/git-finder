@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.GitFinder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/blue</item>
+        <item name="android:statusBarColor">@color/app_main</item>
     </style>
 
     <style name="RoundedRectangle">

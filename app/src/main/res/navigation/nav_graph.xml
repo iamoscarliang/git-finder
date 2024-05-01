@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tool="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/searchFragment">
 
@@ -9,19 +9,19 @@
         android:id="@+id/searchFragment"
         android:name="com.oscarliang.gitfinder.ui.search.SearchFragment"
         android:label="SearchFragment"
-        tool:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search" />
 
     <fragment
         android:id="@+id/bookmarksFragment"
         android:name="com.oscarliang.gitfinder.ui.bookmarks.BookmarksFragment"
         android:label="BookmarksFragment"
-        tool:layout="@layout/fragment_bookmarks" />
+        tools:layout="@layout/fragment_bookmarks" />
 
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.oscarliang.gitfinder.ui.detail.DetailFragment"
         android:label="DetailFragment"
-        tool:layout="@layout/fragment_detail">
+        tools:layout="@layout/fragment_detail">
 
         <argument
             android:name="repoUrl"

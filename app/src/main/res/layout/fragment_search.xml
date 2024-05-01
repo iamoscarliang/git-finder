@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -72,10 +73,9 @@
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:enabled="@{searchResults.state != null}"
+            app:enabled="@{searchResults.state != State.LOADING}"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:onRefreshListener="@{() -> listener.retry()}"
-            app:refreshHide="@{searchResults.state == State.LOADING}">
+            app:onRefreshListener="@{() -> listener.retry()}">
 
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/nested_scroll_view"
@@ -91,10 +91,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
+                        app:layoutManager="GridLayoutManager"
                         app:layout_constraintBottom_toTopOf="@id/layout_loading_state"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:spanCount="@integer/columns_count"
+                        tools:listitem="@layout/layout_repo_item" />
 
                     <include
                         android:id="@+id/layout_loading_state"
@@ -115,7 +118,8 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:shimmer_auto_start="true"
-                        app:showHide="@{searchResults.state == State.LOADING &amp;&amp; searchResults.data.size() == 0}">
+                        app:showHide="@{searchResults.state == State.LOADING &amp;&amp; searchResults.data.size() == 0}"
+                        tools:visibility="gone">
 
                         <LinearLayout
 
@@ -144,7 +148,8 @@
             android:text="@string/empty_search_result"
             android:textColor="@color/gray_500"
             android:textSize="@dimen/text_size_20"
-            app:showHide="@{searchResults.state == State.SUCCESS &amp;&amp; searchResults.data.size == 0}" />
+            app:showHide="@{searchResults.state == State.SUCCESS &amp;&amp; searchResults.data.size == 0}"
+            tools:visibility="gone" />
 
         <include
             android:id="@+id/layout_error_state"
@@ -153,7 +158,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             app:listener="@{listener}"
-            app:resource="@{searchResults}" />
+            app:resource="@{searchResults}"
+            tools:visibility="gone" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -4,11 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
-import com.oscarliang.gitfinder.R
 import com.oscarliang.gitfinder.databinding.FragmentBookmarksBinding
 import com.oscarliang.gitfinder.ui.common.RepoListAdapter
 import com.oscarliang.gitfinder.util.autoCleared
@@ -24,9 +21,8 @@ class BookmarksFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val dataBinding = DataBindingUtil.inflate<FragmentBookmarksBinding>(
+        val dataBinding = FragmentBookmarksBinding.inflate(
             inflater,
-            R.layout.fragment_bookmarks,
             container,
             false
         )
@@ -35,9 +31,9 @@ class BookmarksFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.bookmarks = viewModel.bookmarks
         binding.lifecycleOwner = viewLifecycleOwner
-        val rvAdapter = RepoListAdapter(
+        binding.bookmarks = viewModel.bookmarks
+        this.adapter = RepoListAdapter(
             itemClickListener = {
                 findNavController()
                     .navigate(
@@ -51,20 +47,15 @@ class BookmarksFragment : Fragment() {
             }
         )
         binding.repoList.apply {
-            adapter = rvAdapter
-            layoutManager = GridLayoutManager(
-                this@BookmarksFragment.context,
-                resources.getInteger(R.integer.columns_count)
-            )
+            adapter = this@BookmarksFragment.adapter
             itemAnimator?.changeDuration = 0
         }
-        this.adapter = rvAdapter
         initRecyclerView()
     }
 
     private fun initRecyclerView() {
-        viewModel.bookmarks.observe(viewLifecycleOwner) { repos ->
-            adapter.submitList(repos)
+        viewModel.bookmarks.observe(viewLifecycleOwner) { result ->
+            adapter.submitList(result)
         }
     }
 

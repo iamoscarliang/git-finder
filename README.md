@@ -2,7 +2,7 @@
 <img src="https://github.com/iamoscarliang/git-finder/blob/master/screenshot/gitfinder.png" width="600">
 
 [![Build](https://github.com/iamoscarliang/git-finder/workflows/Build/badge.svg)](https://github.com/iamoscarliang/git-finder/actions)
-![minSdk](https://img.shields.io/badge/minSdk-26-brightgreen)
+![minSdk](https://img.shields.io/badge/minSdk-27-brightgreen)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/iamoscarliang/git-finder/blob/master/LICENSE)
 
 **Github repository finder app made with [Github API](https://docs.github.com/en/rest)**

@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:text="@string/no_bookmarks"
             android:textColor="@color/gray_500"
-            android:textSize="@dimen/text_size_20"
+            android:textSize="@dimen/text_title_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,6 +36,7 @@
             android:id="@+id/repo_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             app:layoutManager="GridLayoutManager"
             app:spanCount="@integer/columns_count"
             tools:listitem="@layout/layout_repo_item" />

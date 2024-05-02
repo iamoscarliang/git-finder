@@ -50,7 +50,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/margin_10"
+                    android:padding="@dimen/margin_medium"
                     android:src="@drawable/ic_search"
                     app:tint="@color/gray_500" />
 
@@ -73,7 +73,7 @@
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:enabled="@{searchResults.state != State.LOADING}"
+            app:enabled="@{searchResults.data.size() != 0}"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:onRefreshListener="@{() -> listener.retry()}">
 
@@ -91,6 +91,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
+                        android:orientation="vertical"
                         app:layoutManager="GridLayoutManager"
                         app:layout_constraintBottom_toTopOf="@id/layout_loading_state"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -147,7 +148,7 @@
             android:layout_gravity="center"
             android:text="@string/empty_search_result"
             android:textColor="@color/gray_500"
-            android:textSize="@dimen/text_size_20"
+            android:textSize="@dimen/text_title_small"
             app:showHide="@{searchResults.state == State.SUCCESS &amp;&amp; searchResults.data.size == 0}"
             tools:visibility="gone" />
 

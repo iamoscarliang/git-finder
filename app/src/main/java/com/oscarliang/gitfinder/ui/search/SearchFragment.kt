@@ -58,6 +58,7 @@ class SearchFragment : Fragment() {
         )
         binding.listener = object : RetryListener {
             override fun retry() {
+                binding.swipeRefreshLayout.isRefreshing = false
                 viewModel.retry()
             }
         }

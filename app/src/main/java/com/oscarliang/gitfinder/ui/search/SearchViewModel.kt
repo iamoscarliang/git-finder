@@ -12,6 +12,7 @@ import com.oscarliang.gitfinder.util.LoadMoreState
 import com.oscarliang.gitfinder.util.NextPageHandler
 import com.oscarliang.gitfinder.util.Resource
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class SearchViewModel(
     private val repository: RepoRepository
@@ -32,7 +33,8 @@ class SearchViewModel(
         get() = nextPageHandler.loadMoreState
 
     fun setQuery(query: String, number: Int) {
-        val update = Query(query, number)
+        val trim = query.lowercase(Locale.getDefault()).trim()
+        val update = Query(trim, number)
         if (_query.value == update) {
             return
         }

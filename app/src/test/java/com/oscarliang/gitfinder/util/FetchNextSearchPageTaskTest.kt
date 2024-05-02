@@ -4,10 +4,12 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.withTransaction
 import com.oscarliang.gitfinder.api.GithubService
+import com.oscarliang.gitfinder.api.RepoSearchResponse
 import com.oscarliang.gitfinder.db.GithubDatabase
 import com.oscarliang.gitfinder.db.RepoDao
 import com.oscarliang.gitfinder.model.RepoSearchResult
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -81,13 +83,21 @@ class FetchNextSearchPageTaskTest {
 
     @Test
     fun testSearchNextPageTrue() = runTest {
-        val ids = listOf(0, 1)
+        val ids = listOf(2, 3)
         val searchResult = RepoSearchResult("foo", 4, ids)
         coEvery { dao.findRepoSearchResult("foo") } returns searchResult
+        val repos = TestUtil.createRepos(2, "foo", "bar", "owner")
+        val response = RepoSearchResponse(4, repos)
+        coEvery { service.searchRepos("foo", 2, 2) } returns response
 
         val observer = mockk<Observer<Resource<Boolean>?>>(relaxed = true)
         fetchNextSearchPageTask.asLiveData().observeForever(observer)
         advanceUntilIdle()
+
+        coVerify { service.searchRepos("foo", 2, 2) }
+        coVerify { dao.insertRepos(repos) }
+        val updatedResult = RepoSearchResult("foo", 4, listOf(2, 3, 0, 1))
+        coVerify { dao.insertRepoSearchResult(updatedResult) }
         verify { observer.onChanged(Resource.success(true)) }
     }
 

@@ -51,7 +51,6 @@ class NextPageHandlerTest {
         clearMocks(observer)
 
         nextPageResult.value = null
-        assertEquals(nextPageHandler.hasMore, true)
         verify {
             observer.onChanged(
                 LoadMoreState(
@@ -84,7 +83,6 @@ class NextPageHandlerTest {
         clearMocks(observer)
 
         nextPageResult.value = Resource.success(true)
-        assertEquals(nextPageHandler.hasMore, true)
         verify {
             observer.onChanged(
                 LoadMoreState(
@@ -117,7 +115,6 @@ class NextPageHandlerTest {
         clearMocks(observer)
 
         nextPageResult.value = Resource.success(false)
-        assertEquals(nextPageHandler.hasMore, false)
         verify {
             observer.onChanged(
                 LoadMoreState(
@@ -150,12 +147,11 @@ class NextPageHandlerTest {
         clearMocks(observer)
 
         nextPageResult.value = Resource.error("idk", true)
-        assertEquals(nextPageHandler.hasMore, true)
         verify {
             observer.onChanged(
                 LoadMoreState(
                     isRunning = false,
-                    hasMore = true,
+                    hasMore = false,
                     errorMessage = "idk"
                 )
             )

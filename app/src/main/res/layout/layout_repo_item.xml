@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-
     <data>
 
         <variable
@@ -24,7 +23,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/app_fg"
+            android:background="?attr/colorSurface"
             android:padding="@dimen/margin_large">
 
             <com.google.android.material.imageview.ShapeableImageView
@@ -44,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_medium"
                 android:text="@{repo.owner.name}"
-                android:textColor="@color/gray_500"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="@dimen/text_body_small"
                 app:layout_constraintBottom_toBottomOf="@id/image_owner"
                 app:layout_constraintStart_toEndOf="@id/image_owner"
@@ -59,7 +58,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@{repo.name}"
-                android:textColor="@color/black"
+                android:textColor="?attr/colorOnSecondary"
                 android:textSize="@dimen/text_body_medium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/image_owner"
@@ -74,7 +73,7 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@{repo.description}"
-                android:textColor="@color/gray_700"
+                android:textColor="?attr/colorSecondaryVariant"
                 android:textSize="@dimen/text_body_medium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/image_owner"
@@ -95,7 +94,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_small"
-                android:textColor="@color/gray_500"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="@dimen/text_body_small"
                 app:formatText="@{repo.stars}"
                 app:layout_constraintBottom_toBottomOf="@id/image_star"
@@ -111,14 +110,14 @@
                 android:src="@drawable/ic_fork"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/text_star"
-                app:tint="@color/gray_500" />
+                app:tint="?attr/colorSecondary" />
 
             <TextView
                 android:id="@+id/text_fork"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_small"
-                android:textColor="@color/gray_500"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="@dimen/text_body_small"
                 app:formatText="@{repo.forks}"
                 app:layout_constraintBottom_toBottomOf="@id/image_fork"
@@ -135,7 +134,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/text_fork"
                 app:showHide="@{repo.language != null}"
-                app:tint="@color/gray_500" />
+                app:tint="?attr/colorSecondary" />
 
             <TextView
                 android:id="@+id/text_language"
@@ -143,7 +142,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_small"
                 android:text="@{repo.language}"
-                android:textColor="@color/gray_500"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="@dimen/text_body_small"
                 app:layout_constraintBottom_toBottomOf="@id/image_language"
                 app:layout_constraintStart_toEndOf="@id/image_language"

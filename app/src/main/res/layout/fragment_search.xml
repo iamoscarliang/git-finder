@@ -40,7 +40,7 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/app_fg"
+            android:background="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -55,17 +55,17 @@
                     android:layout_height="wrap_content"
                     android:padding="@dimen/margin_medium"
                     android:src="@drawable/ic_search"
-                    app:tint="@color/gray_500" />
+                    app:tint="?attr/colorSecondary" />
 
                 <EditText
                     android:id="@+id/edit_search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/gray_500"
+                    android:backgroundTint="?attr/colorSecondary"
                     android:hint="@string/search_hint"
                     android:imeOptions="actionSearch"
                     android:inputType="textNoSuggestions"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSecondary"
                     android:textCursorDrawable="@null" />
 
             </androidx.appcompat.widget.Toolbar>
@@ -114,8 +114,8 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:retryListener="@{retryNextPageListener}"
-                        app:lodeMoreState="@{lodeMoreState}" />
+                        app:lodeMoreState="@{lodeMoreState}"
+                        app:retryListener="@{retryNextPageListener}" />
 
                     <com.facebook.shimmer.ShimmerFrameLayout
                         android:id="@+id/shimmer_layout"
@@ -152,7 +152,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/empty_search_result"
-            android:textColor="@color/gray_500"
+            android:textColor="?attr/colorSecondary"
             android:textSize="@dimen/text_title_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

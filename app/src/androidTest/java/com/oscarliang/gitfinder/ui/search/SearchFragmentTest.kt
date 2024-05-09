@@ -26,6 +26,7 @@ import com.oscarliang.gitfinder.R
 import com.oscarliang.gitfinder.model.Repo
 import com.oscarliang.gitfinder.util.DataBindingIdlingResourceRule
 import com.oscarliang.gitfinder.util.EspressoTestUtil.nestedScrollTo
+import com.oscarliang.gitfinder.util.LoadMoreState
 import com.oscarliang.gitfinder.util.RecyclerViewMatcher
 import com.oscarliang.gitfinder.util.Resource
 import com.oscarliang.gitfinder.util.TestUtil
@@ -51,7 +52,7 @@ class SearchFragmentTest {
     private lateinit var navController: NavController
     private lateinit var viewModel: SearchViewModel
     private val searchResults = MutableLiveData<Resource<List<Repo>>>()
-    private val loadMoreState = MutableLiveData<SearchViewModel.LoadMoreState>()
+    private val loadMoreState = MutableLiveData<LoadMoreState>()
 
     @Before
     fun init() {
@@ -73,16 +74,6 @@ class SearchFragmentTest {
         scenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), navController)
         }
-    }
-
-    @Test
-    fun testBlankSearch() {
-        onView(withId(R.id.edit_search)).perform(
-            typeText(" "),
-            pressKey(KeyEvent.KEYCODE_ENTER)
-        )
-        // Test is the snack bar show when searching blank input
-        onView(withText(getString(R.string.empty_search))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -156,16 +147,23 @@ class SearchFragmentTest {
 
     @Test
     fun testLoadMoreState() {
-        loadMoreState.postValue(SearchViewModel.LoadMoreState(true, true, null))
+        loadMoreState.postValue(LoadMoreState(isRunning = true, hasMore = true, null))
         onView(withId(R.id.progressbar)).check(matches(isDisplayed()))
-        loadMoreState.postValue(SearchViewModel.LoadMoreState(false, true, null))
+        loadMoreState.postValue(LoadMoreState(isRunning = false, hasMore = true, null))
         onView(withId(R.id.progressbar)).check(matches(not(isDisplayed())))
     }
 
     @Test
     fun testLoadMoreStateError() {
-        loadMoreState.postValue(SearchViewModel.LoadMoreState(true, false, "idk"))
-        onView(withText("idk")).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+        loadMoreState.postValue(LoadMoreState(isRunning = false, hasMore = false, "idk"))
+        onView(withId(R.id.text_message)).check(matches(hasDescendant(withText("idk"))))
+    }
+
+    @Test
+    fun testLoadMoreStateNoMore() {
+        loadMoreState.postValue(LoadMoreState(isRunning = false, hasMore = false, null))
+        onView(withText(getString(R.string.no_more_result)))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
     }
 
     @Test

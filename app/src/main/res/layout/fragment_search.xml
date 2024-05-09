@@ -16,15 +16,15 @@
         <import type="androidx.lifecycle.LiveData" />
 
         <variable
-            name="isRunning"
-            type="boolean" />
+            name="lodeMoreState"
+            type="com.oscarliang.gitfinder.util.LoadMoreState" />
 
         <variable
-            name="hasMore"
-            type="boolean" />
+            name="retryListener"
+            type="com.oscarliang.gitfinder.ui.common.RetryListener" />
 
         <variable
-            name="listener"
+            name="retryNextPageListener"
             type="com.oscarliang.gitfinder.ui.common.RetryListener" />
 
         <variable
@@ -48,8 +48,7 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_scrollFlags="scroll|enterAlways">
+                android:layout_height="?attr/actionBarSize">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -82,7 +81,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appbar"
-            app:onRefreshListener="@{() -> listener.retry()}">
+            app:onRefreshListener="@{() -> retryListener.retry()}">
 
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/nested_scroll_view"
@@ -112,11 +111,11 @@
                         layout="@layout/layout_loading_state"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/layout_loading_state_height"
-                        app:hasMore="@{hasMore}"
-                        app:isRunning="@{isRunning}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:retryListener="@{retryNextPageListener}"
+                        app:lodeMoreState="@{lodeMoreState}" />
 
                     <com.facebook.shimmer.ShimmerFrameLayout
                         android:id="@+id/shimmer_layout"
@@ -171,8 +170,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:listener="@{listener}"
             app:resource="@{searchResults}"
+            app:retryListener="@{retryListener}"
             tools:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

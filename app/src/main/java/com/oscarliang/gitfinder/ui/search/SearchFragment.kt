@@ -13,7 +13,6 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import com.oscarliang.gitfinder.R
 import com.oscarliang.gitfinder.databinding.FragmentSearchBinding
 import com.oscarliang.gitfinder.ui.common.RepoListAdapter
 import com.oscarliang.gitfinder.ui.common.RetryListener
@@ -56,10 +55,15 @@ class SearchFragment : Fragment() {
                 viewModel.toggleBookmark(it)
             }
         )
-        binding.listener = object : RetryListener {
+        binding.retryListener = object : RetryListener {
             override fun retry() {
                 binding.swipeRefreshLayout.isRefreshing = false
                 viewModel.retry()
+            }
+        }
+        binding.retryNextPageListener = object : RetryListener {
+            override fun retry() {
+                viewModel.retryNextPage()
             }
         }
         binding.repoList.apply {
@@ -82,12 +86,8 @@ class SearchFragment : Fragment() {
             }
         }
         viewModel.loadMoreState.observe(viewLifecycleOwner) { state ->
-            if (state == null) {
-                binding.isRunning = false
-                binding.hasMore = false
-            } else {
-                binding.isRunning = state.isRunning
-                binding.hasMore = state.hasMore
+            if (state != null) {
+                binding.lodeMoreState = state
                 val error = state.errorMessageIfNotHandled
                 if (error != null) {
                     Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
@@ -118,12 +118,7 @@ class SearchFragment : Fragment() {
     private fun doSearch(v: View) {
         dismissKeyboard(v.windowToken)
         val query = binding.editSearch.text.toString()
-        if (query.isBlank()) {
-            Snackbar.make(binding.root, getString(R.string.empty_search), Snackbar.LENGTH_LONG)
-                .show()
-        } else {
-            viewModel.setQuery(query, REPO_PER_PAGE_COUNT)
-        }
+        viewModel.setQuery(query, REPO_PER_PAGE_COUNT)
     }
 
     private fun dismissKeyboard(windowToken: IBinder) {

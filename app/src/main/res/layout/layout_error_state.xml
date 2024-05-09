@@ -13,7 +13,7 @@
         <import type="com.oscarliang.gitfinder.util.State" />
 
         <variable
-            name="listener"
+            name="retryListener"
             type="com.oscarliang.gitfinder.ui.common.RetryListener" />
 
         <variable
@@ -44,10 +44,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_medium"
             android:backgroundTint="@color/gray_500"
-            android:onClick="@{() -> listener.retry()}"
+            android:onClick="@{() -> retryListener.retry()}"
             android:text="@string/retry"
             android:textAllCaps="false"
-            android:textSize="@dimen/text_body_medium" />
+            android:textSize="@dimen/text_body_small" />
 
     </LinearLayout>
 

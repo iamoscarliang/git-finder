@@ -24,13 +24,13 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/app_fg">
+            android:background="@color/app_fg"
+            android:padding="@dimen/margin_large">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_owner"
                 android:layout_width="@dimen/image_owner_width"
                 android:layout_height="@dimen/image_owner_width"
-                android:layout_margin="@dimen/margin_large"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{repo.owner.avatarUrl}"
                 app:layout_constraintStart_toStartOf="parent"
@@ -53,12 +53,15 @@
 
             <TextView
                 android:id="@+id/text_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_small"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="@{repo.name}"
                 android:textColor="@color/black"
                 android:textSize="@dimen/text_body_medium"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/image_owner"
                 app:layout_constraintTop_toBottomOf="@id/image_owner"
                 tools:text="Repo name" />
@@ -68,7 +71,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_small"
-                android:layout_marginEnd="@dimen/margin_large"
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@{repo.description}"
@@ -83,7 +85,6 @@
                 android:id="@+id/image_star"
                 android:layout_width="@dimen/image_icon_width"
                 android:layout_height="@dimen/image_icon_width"
-                android:layout_margin="@dimen/margin_large"
                 android:src="@drawable/ic_star"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -106,7 +107,7 @@
                 android:id="@+id/image_fork"
                 android:layout_width="@dimen/image_icon_width"
                 android:layout_height="@dimen/image_icon_width"
-                android:layout_margin="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
                 android:src="@drawable/ic_fork"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/text_star"
@@ -129,7 +130,7 @@
                 android:id="@+id/image_language"
                 android:layout_width="@dimen/image_icon_width"
                 android:layout_height="@dimen/image_icon_width"
-                android:layout_margin="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
                 android:src="@drawable/ic_code"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/text_fork"
@@ -153,7 +154,6 @@
                 android:id="@+id/btn_bookmark"
                 android:layout_width="@dimen/btn_bookmark_width"
                 android:layout_height="@dimen/btn_bookmark_width"
-                android:layout_marginEnd="@dimen/margin_large"
                 android:background="@{repo.bookmark ? @drawable/ic_bookmark : @drawable/ic_bookmark_border}"
                 android:backgroundTint="@{repo.bookmark ? @color/blue : @color/gray_700}"
                 app:layout_constraintBottom_toBottomOf="@id/image_star"

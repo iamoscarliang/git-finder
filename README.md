@@ -5,7 +5,7 @@
 ![minSdk](https://img.shields.io/badge/minSdk-27-brightgreen)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/iamoscarliang/git-finder/blob/master/LICENSE)
 
-[View Branch](https://github.com/iamoscarliang/git-finder/tree/master)&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;[Compose Branch](https://github.com/iamoscarliang/git-finder/tree/compose)
+&nbsp;&nbsp;&nbsp;[View Branch](https://github.com/iamoscarliang/git-finder/tree/master)&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;[Compose Branch](https://github.com/iamoscarliang/git-finder/tree/compose)
 
 **Github reader app made with [Github API](https://docs.github.com/en/rest) implement in both [View](https://developer.android.com/studio/write/layout-editor) and [Compose](https://developer.android.com/develop/ui/compose)**
 </div>
@@ -14,6 +14,11 @@
 
 ## :pushpin: Screenshots
 <img src="https://github.com/iamoscarliang/git-finder/blob/master/screenshots/screenshot.png" width="800">
+
+## :pencil: Features
+GitFinder demonstrates Android development migrating from a View-based app to Jetpack Compose. The following showcases compare building an identical layout using View and Compose.
+
+<img src="https://github.com/iamoscarliang/git-finder/blob/master/screenshots/view_compose.png" width="800">
 
 ## :books: Tech Stack
 - :wrench: Architecture Component [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) & [Livedata](https://developer.android.com/topic/libraries/architecture/livedata)

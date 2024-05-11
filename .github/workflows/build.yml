@@ -4,6 +4,7 @@ on: [ push ]
 jobs:
   unit-test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4.1.0
 
@@ -14,5 +15,25 @@ jobs:
           distribution: 'adopt'
 
       # Execute unit tests
-      - name: Unit Test
+      - name: Run Unit Test
         run: ./gradlew testDebugUnitTest
+
+  instrumentation-test:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4.1.0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      # Execute instrumentation tests
+      - name: Run Instrumentation Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          script: ./gradlew connectedAndroidTest

@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
@@ -102,15 +103,20 @@ fun SearchScreen(
 
         Column(modifier = Modifier.padding(innerPadding)) {
             SearchBar(onSearch = onSearch)
-            Box(Modifier.pullRefresh(state)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag("refresh")) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(integerResource(id = R.integer.columns_count)),
                     contentPadding = PaddingValues(dimensionResource(id = R.dimen.margin_medium)),
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.margin_large)),
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.margin_large)),
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("searchResults")
                 ) {
-                    if (searchResults?.state == State.LOADING) {
+                    if (searchResults?.state == State.LOADING && searchResults.data.isNullOrEmpty()) {
                         items(2) {
                             ShimmerListItem()
                         }
@@ -272,8 +278,10 @@ fun LoadingSection(
         }
         if (loadMoreState?.isRunning == true) {
             CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colors.primary
+                color = MaterialTheme.colors.primaryVariant,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .testTag("progressbar")
             )
         }
     }

@@ -106,7 +106,8 @@ fun SearchScreen(
             Box(
                 Modifier
                     .pullRefresh(state)
-                    .testTag("refresh")) {
+                    .testTag("refresh")
+            ) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(integerResource(id = R.integer.columns_count)),
                     contentPadding = PaddingValues(dimensionResource(id = R.dimen.margin_medium)),
@@ -145,11 +146,13 @@ fun SearchScreen(
                         }
                     }
                 }
-                PullRefreshIndicator(
-                    refreshing = refreshing,
-                    state = state,
-                    modifier = Modifier.align(Alignment.TopCenter)
-                )
+                if (!searchResults?.data.isNullOrEmpty()) {
+                    PullRefreshIndicator(
+                        refreshing = refreshing,
+                        state = state,
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
+                }
             }
         }
     }
